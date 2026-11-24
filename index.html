@@ -184,7 +184,7 @@ footer .links a{opacity:.9}
 <div class="links"><a href="#about">About Us</a><a href="#team">Our Team</a><a href="#editorial">Editorial Policy</a><a href="#privacy">Privacy Policy</a><a href="#privacy">Disclaimer</a><a href="#advertise">Advertise With Us</a><a href="#sampark">Contact Us</a><a href="https://youtube.com/@parligroundreport24x7" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/parli_groundreport__24x7" target="_blank" rel="noopener">Instagram</a><a href="https://www.facebook.com/share/1CNRHarVUg/" target="_blank" rel="noopener">Facebook</a></div>
 <p style="margin-top:16px;font-size:14px">© Parligroundreport 24x7</p>
 </div></footer>
-<script>
+<div id="md" class="md" hidden><div class="mb"><button id="mx" aria-label="Band karein">&#10005;</button><div id="mc"></div></div><script>
 (function(){
 var CAT={parli:['Parli News','\ud83d\udccd'],beed:['Beed News','\ud83d\uddfa\ufe0f'],maharashtra:['Maharashtra','\ud83c\udfdb\ufe0f'],india:['India News','\ud83c\udf10'],politics:['Politics','\ud83d\udc65'],crime:['Crime News','\ud83d\udee1\ufe0f'],accident:['Accident News','\ud83d\udea8'],education:['Education','\ud83c\udf93'],schemes:['Govt Schemes','\ud83d\udccb'],business:['Business','\ud83d\udcbc'],sports:['Sports','\ud83c\udfcf'],entertainment:['Entertainment','\ud83c\udfac'],public:['Public Issues','\ud83d\udce2'],special:['Special Reports','\u2b50']};
 var NEWS=[];
@@ -267,6 +267,6 @@ function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return imp
 Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){render(r[0].concat(r[1]))});
 })();
 </script>
-<div id="md" class="md" hidden><div class="mb"><button id="mx" aria-label="Band karein">\u2715</button><div id="mc"></div></div></div>
+</div>
 </body>
 </html>
