@@ -28,8 +28,9 @@ button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0
 <div id="fo"><label>Status</label><select id="st"><option value="publish">Publish</option><option value="draft">Draft (abhi mat dikhao)</option></select>
 <label>Schedule (optional, baad ka time)</label><input id="sc" type="datetime-local">
 <label><input id="tp" type="checkbox">Top Story banao</label></div>
-<button id="pb">Publish karein</button></div>
+<button id="pb">Publish karein</button><button id="cx" class="s" hidden style="margin-top:10px">Edit cancel karo</button></div>
 <div class="b"><b>Nayi posts (is panel se)</b><div id="ls"></div></div>
+<div class="b"><b>Purani khabrein (posts.json)</b><p style="font-size:14px;color:#5b6573;margin:6px 0">Ek baar dabao. Purani khabrein is panel me aa jayengi, phir unhe edit ya delete kar sakoge.</p><button id="im" class="s">Purani khabrein import karo</button></div>
 <button id="lo" class="s">Logout</button></div></div><div id="msg"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -60,24 +61,49 @@ $("pb").onclick=async()=>{
    }
   }
   b.textContent="Publish ho raha hai...";
-  await addDoc(collection(db,"posts"),p);
-  m("Ho gaya! Website par turant dikhegi.");
-  ["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;load();
+  if(editId){if(!$("sc").value)delete p.date;await updateDoc(doc(db,"posts",editId),p);m("Update ho gayi!")}else{await addDoc(collection(db,"posts"),p);m("Ho gaya! Website par turant dikhegi.")}
+  endEdit();
+  
  }catch(e){m("Error: "+e.message)}
- b.disabled=false;b.textContent="Publish karein";
+ b.disabled=false;b.textContent=editId?"Update karein":"Publish karein";
+};
+let editId=null,cache={};
+const key=p=>(p.date||"")+"|"+(p.title||p.reel||"");
+function endEdit(){editId=null;["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("cx").hidden=true;load()}
+$("cx").onclick=endEdit;
+function startEdit(id){
+ const p=cache[id];if(!p)return;editId=id;
+ $("ty").value=p.type||"news";$("ty").onchange();$("ty").disabled=true;
+ $("ti").value=p.title||"";$("bo").value=p.body||"";$("pl").value=p.place||"";
+ if(p.cat)$("ca").value=p.cat;$("st").value=p.status==="draft"?"draft":"publish";$("tp").checked=!!p.top;
+ $("pb").textContent="Update karein";$("cx").hidden=false;window.scrollTo({top:0,behavior:"smooth"});
+ m("Edit mode: badlav karke Update dabao. Nayi photo na chuno to purani photo rahegi.");
+}
+$("im").onclick=async()=>{
+ const b=$("im");b.disabled=true;
+ try{
+  const r=await fetch("posts.json?v="+Date.now());if(!r.ok)throw new Error("posts.json nahi mili");
+  const old=await r.json();if(!Array.isArray(old))throw new Error("posts.json ka format alag hai");
+  const s=await getDocs(collection(db,"posts"));const have=new Set(s.docs.map(d=>d.data().from).filter(Boolean));
+  let n=0;
+  for(const p of old){const k=key(p);if(have.has(k))continue;const o={};Object.keys(p).forEach(x=>{if(p[x]!==undefined&&x!=="id")o[x]=p[x]});o.from=k;if(!o.status)o.status="publish";await addDoc(collection(db,"posts"),o);n++}
+  m(n?n+" purani khabrein import ho gayi":"Sab pehle se import hain");load();
+ }catch(e){m("Error: "+e.message)}
+ b.disabled=false;
 };
 async function load(){
  const s=await getDocs(collection(db,"posts"));
- const a=s.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>new Date(y.date)-new Date(x.date));
+ const a=s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.status!=="deleted").sort((x,y)=>new Date(y.date)-new Date(x.date));cache={};a.forEach(p=>cache[p.id]=p);
  $("ls").innerHTML=a.map(p=>`<div class="it"><b>${esc(p.type==="reel"?"Reel "+p.reel:p.title)}</b><br><small>${esc(p.type)} | ${p.status==="draft"?"Draft":"Publish"}${p.top?" | Top":""} | ${esc((p.date||"").slice(0,10))}</small><br>
- ${p.type!=="reel"?`<button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
+ ${p.type!=="reel"?`<button class="s" data-id="${p.id}" data-a="ed">Edit</button><button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
  ${p.type==="news"?`<button class="s" data-id="${p.id}" data-a="tp" data-v="${p.top?1:0}">${p.top?"Top hatao":"Top banao"}</button>`:""}
  <button class="s d" data-id="${p.id}" data-a="del">Delete</button></div>`).join("")||"<p>Abhi koi nayi post nahi.</p>";
 }
 $("ls").onclick=async e=>{
  const b=e.target.closest("button");if(!b)return;const r=doc(db,"posts",b.dataset.id);
  try{
-  if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;await deleteDoc(r)}
+  if(b.dataset.a==="ed")return startEdit(b.dataset.id);
+  if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;const c=cache[b.dataset.id];if(c&&c.from)await updateDoc(r,{status:"deleted"});else await deleteDoc(r)}
   if(b.dataset.a==="st")await updateDoc(r,{status:b.dataset.v==="draft"?"publish":"draft"});
   if(b.dataset.a==="tp")await updateDoc(r,{top:b.dataset.v!=="1"});
   load();

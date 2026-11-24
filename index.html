@@ -263,12 +263,12 @@ var td=$('today');if(td)td.textContent=new Date().toLocaleDateString('en-IN',{we
 cats();
 $('mx').onclick=function(){$('md').hidden=true};
 $('md').onclick=function(e){if(e.target===this)this.hidden=true};
-function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return import(B+'firebase-app.js').then(function(a){return import(B+'firebase-firestore.js').then(function(f){var db=f.getFirestore(a.initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"}));return f.getDocs(f.collection(db,'posts')).then(function(q){return q.docs.map(function(d){var o=d.data();o.id=d.id;return o})})})}).catch(function(){return[]})}
-Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){render(r[0].concat(r[1]))});
+function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return import(B+'firebase-app.js').then(function(a){return import(B+'firebase-firestore.js').then(function(f){var db=f.getFirestore(a.initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"}));return f.getDocs(f.collection(db,'posts')).then(function(q){var R={d:[],f:{}};q.docs.forEach(function(d){var o=d.data();o.id=d.id;if(o.from)R.f[o.from]=1;if(o.status!=='deleted')R.d.push(o)});return R})})}).catch(function(){return{d:[],f:{}}})}
+Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){var F=r[1].f;render(r[0].filter(function(p){return !F[(p.date||'')+'|'+(p.title||p.reel||'')]}).concat(r[1].d))});
 })();
 </script>
-</div> 
-  <!-- DARK/LIGHT MODE START -->
+</div>
+<!-- DARK/LIGHT MODE START -->
 <button id="thm" type="button" aria-label="Dark ya Light mode badlein" style="position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:50;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer">🌓</button>
 <script>
 (function(){
