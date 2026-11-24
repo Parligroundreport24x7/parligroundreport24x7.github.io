@@ -193,14 +193,21 @@ function $(i){return document.getElementById(i)}
 function fd(s){var d=new Date(s);if(isNaN(d))return '';return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}
 function meta(p){return [p.place,(CAT[p.cat]||[''])[0],fd(p.date)].filter(Boolean).join(' \u2022 ')}
 function okimg(p){return p.img&&(/^images\/[\w.-]+$/.test(p.img)||/^https:\/\/res\.cloudinary\.com\/h87lzxgl\//.test(p.img))}
+function pid(p){var k=p.from||(p.id?'':((p.date||'')+'|'+(p.title||p.reel||'')));if(!k)return p.id;var h=5381;for(var i=0;i<k.length;i++)h=((h*33)^k.charCodeAt(i))>>>0;return 'o'+h.toString(36)}
+function plink(p){return location.origin+location.pathname+'?n='+pid(p)}
+var T0=document.title;
+function closeM(){$('md').hidden=true;document.title=T0;try{history.replaceState(null,'',location.pathname)}catch(e){}}
+function openFromUrl(){var m=/[?&]n=([\w-]+)/.exec(location.search);if(!m)return;var p=NEWS.filter(function(x){return pid(x)===m[1]})[0];if(p)openM(p)}
 function openM(p){
   var c=$('mc');c.textContent='';
   if(okimg(p)){var i=E('img');i.src=p.img;i.alt=p.title||'';c.appendChild(i)}
   c.appendChild(E('h3',0,p.title||''));c.appendChild(E('div','mt',meta(p)));c.appendChild(E('p','mbody',p.body||''));
   var b=E('div','mbar'),w=E('a','btn','WhatsApp par share');
-  w.href='https://wa.me/?text='+encodeURIComponent((p.title||'')+' - '+location.href.split('#')[0]);w.target='_blank';w.rel='noopener';
+  w.href='https://wa.me/?text='+encodeURIComponent((p.title||'')+' - '+plink(p));w.target='_blank';w.rel='noopener';
   var pr=E('button','btn alt','Print');pr.onclick=function(){window.print()};
-  b.appendChild(w);b.appendChild(pr);c.appendChild(b);$('md').hidden=false;
+  var cp=E('button','btn alt','Link copy karo');cp.type='button';cp.onclick=function(){var u=plink(p);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){cp.textContent='Link copy ho gaya'},function(){prompt('Link copy karein:',u)})}else{prompt('Link copy karein:',u)}};
+  b.appendChild(w);b.appendChild(cp);b.appendChild(pr);c.appendChild(b);$('md').hidden=false;
+  document.title=(p.title||'')+' | Parligroundreport 24x7';try{history.replaceState(null,'','?n='+pid(p))}catch(e){}
 }
 function row(p){
   var r=E('div','ni');
@@ -261,10 +268,10 @@ function render(all){
 }
 var td=$('today');if(td)td.textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 cats();
-$('mx').onclick=function(){$('md').hidden=true};
-$('md').onclick=function(e){if(e.target===this)this.hidden=true};
+$('mx').onclick=closeM;
+$('md').onclick=function(e){if(e.target===this)closeM()};
 function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return import(B+'firebase-app.js').then(function(a){return import(B+'firebase-firestore.js').then(function(f){var db=f.getFirestore(a.initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"}));return f.getDocs(f.collection(db,'posts')).then(function(q){var R={d:[],f:{}};q.docs.forEach(function(d){var o=d.data();o.id=d.id;if(o.from)R.f[o.from]=1;if(o.status!=='deleted')R.d.push(o)});return R})})}).catch(function(){return{d:[],f:{}}})}
-Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){var F=r[1].f;render(r[0].filter(function(p){return !F[(p.date||'')+'|'+(p.title||p.reel||'')]}).concat(r[1].d))});
+Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){var F=r[1].f;render(r[0].filter(function(p){return !F[(p.date||'')+'|'+(p.title||p.reel||'')]}).concat(r[1].d));openFromUrl()});
 })();
 </script>
 </div>
