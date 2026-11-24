@@ -86,6 +86,24 @@ footer .links a{opacity:.9}
 .mbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 #mx{position:sticky;top:0;float:right;border:0;background:var(--red);color:#fff;border-radius:99px;width:38px;height:38px;font-size:18px}
 @media print{body>*:not(#md){display:none!important}.md{position:static;background:none}#mx,.mbar{display:none}}
+
+body.app>*:not(#app):not(#md):not(script){display:none!important}
+body.app{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+body.app::before{content:"Khabrein load ho rahi hain...";display:block;padding:60px 20px;text-align:center;color:var(--muted)}
+body.app.ready::before{display:none}
+.ah{position:sticky;top:0;z-index:20;background:var(--blue);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.ah img{width:40px;height:36px;object-fit:contain;background:#fff;border-radius:6px}.ah b{font:800 24px "Saira Condensed",sans-serif}
+.as{padding:12px 14px;max-width:720px;margin:auto}.as[hidden]{display:none}
+.ab{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+.ab button{flex:1;border:0;background:none;color:var(--muted);padding:7px 2px;font:600 12px Mukta,sans-serif;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ab button span{font-size:22px}.ab button.on{color:var(--red)}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.as input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--panel);color:var(--ink);margin-bottom:8px}
+.ai{display:block;padding:14px;margin:8px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-weight:600;width:100%;text-align:left;font-family:inherit;font-size:17px}
+.atk{background:var(--red);color:#fff;border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:15px}
+.as h2{margin:16px 0 4px;font-size:26px}
+body.app .md{padding:0;background:var(--bg)}body.app .mb{max-width:none;min-height:100%;border-radius:0;padding:12px 14px 40px}
+body.app #mx{position:static;display:block;margin:0 0 10px;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:8px 16px;font:600 16px Mukta,sans-serif;width:auto}
 </style>
 </head>
 <body>
@@ -187,6 +205,8 @@ footer .links a{opacity:.9}
 <div id="md" class="md" hidden><div class="mb"><button id="mx" aria-label="Band karein">&#10005;</button><div id="mc"></div></div><script>
 (function(){
 var CAT={parli:['Parli News','\ud83d\udccd'],beed:['Beed News','\ud83d\uddfa\ufe0f'],maharashtra:['Maharashtra','\ud83c\udfdb\ufe0f'],india:['India News','\ud83c\udf10'],politics:['Politics','\ud83d\udc65'],crime:['Crime News','\ud83d\udee1\ufe0f'],accident:['Accident News','\ud83d\udea8'],education:['Education','\ud83c\udf93'],schemes:['Govt Schemes','\ud83d\udccb'],business:['Business','\ud83d\udcbc'],sports:['Sports','\ud83c\udfcf'],entertainment:['Entertainment','\ud83c\udfac'],public:['Public Issues','\ud83d\udce2'],special:['Special Reports','\u2b50']};
+var APP=(function(){try{var q=/[?&]app=(\d)/.exec(location.search);if(q){if(q[1]==='1')sessionStorage.setItem('pgr_app','1');else sessionStorage.removeItem('pgr_app')}return sessionStorage.getItem('pgr_app')==='1'}catch(e){return /[?&]app=1/.test(location.search)}})();
+if(APP)document.body.classList.add('app');
 var NEWS=[];
 function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function $(i){return document.getElementById(i)}
@@ -265,6 +285,32 @@ function render(all){
     });
     v.appendChild(vr);
   }
+  if(APP)buildApp(all,NEWS,br,vids);
+}
+function mk(p){var f;if(p.type==='vfile'){f=E('video','vf');f.src=p.video;f.controls=true;f.preload='metadata';f.setAttribute('playsinline','')}else{f=E('iframe');f.loading='lazy';f.setAttribute('allowfullscreen','');if(p.type==='reel'){f.src='https://www.instagram.com/reel/'+p.reel+'/embed';f.className='r'}else{f.src='https://www.youtube.com/embed/'+p.yt;f.className='y'}}var w=E('div','vr');w.appendChild(f);return w}
+function buildApp(all,news,br,vids){
+  var A=E('div');A.id='app';var S={},NB={};
+  var hd=E('div','ah'),lg=document.querySelector('header img');
+  if(lg){var im=E('img');im.src=lg.src;im.alt='';hd.appendChild(im)}
+  hd.appendChild(E('b',0,'PGR NEWS 24x7'));A.appendChild(hd);
+  var TABS=[['home','\ud83c\udfe0','Home'],['cats','\ud83d\udcc2','Categories'],['vids','\ud83c\udfac','Videos'],['srch','\ud83d\udd0d','Search'],['more','\u2630','Aur']];
+  TABS.forEach(function(x){var s=E('div','as');s.hidden=true;S[x[0]]=s;A.appendChild(s)});
+  function show(k){Object.keys(S).forEach(function(i){S[i].hidden=i!==k;NB[i].classList.toggle('on',i===k)});if(k==='cats')catMenu();window.scrollTo(0,0)}
+  var H=S.home;
+  if(br.length)H.appendChild(E('div','atk','\ud83d\udd34 '+br.slice(0,5).map(function(x){return x.title}).join('  \u2022  ')));
+  var top=news.filter(function(p){return p.top})[0]||news[0];
+  if(top){var h=E('div','hero');if(okimg(top)){var i=E('img');i.src=top.img;i.alt='';h.appendChild(i)}var hb=E('div','hb');hb.appendChild(E('span','tag','TOP STORY'));var tt=E('h3',0,top.title||'');tt.onclick=function(){openM(top)};hb.appendChild(tt);hb.appendChild(E('div','mt',meta(top)));h.appendChild(hb);H.appendChild(h)}
+  H.appendChild(E('h2',0,'Latest News'));var nl=E('div','nl');H.appendChild(nl);list(nl,news.filter(function(p){return p!==top}).slice(0,20),'Abhi koi khabar nahi hai.');
+  function catMenu(){var c=S.cats;c.textContent='';c.appendChild(E('h2',0,'Categories'));var g=E('div','ag');Object.keys(CAT).forEach(function(k){var b=E('button','cc');b.type='button';b.appendChild(E('span','ic',CAT[k][1]));b.appendChild(E('b',0,' '+CAT[k][0]));b.onclick=function(){catView(k)};g.appendChild(b)});c.appendChild(g)}
+  function catView(k){var c=S.cats;c.textContent='';var bk=E('button','ai','\u2190 Categories');bk.type='button';bk.onclick=catMenu;c.appendChild(bk);c.appendChild(E('h2',0,CAT[k][0]));var l=E('div','nl');c.appendChild(l);list(l,news.filter(function(p){return p.cat===k}),'Is category mein abhi koi khabar nahi hai.');window.scrollTo(0,0)}
+  S.vids.appendChild(E('h2',0,'Videos / Reels'));if(vids.length)vids.forEach(function(p){S.vids.appendChild(mk(p))});else S.vids.appendChild(E('p','empty','Abhi koi video nahi hai.'));
+  var q=E('input');q.type='search';q.placeholder='Khabar dhoondhein...';S.srch.appendChild(q);var sr=E('div','nl');S.srch.appendChild(sr);
+  q.oninput=function(){var v=q.value.trim().toLowerCase();sr.textContent='';if(!v)return;list(sr,news.filter(function(p){return((p.title||'')+' '+(p.body||'')+' '+(p.place||'')).toLowerCase().indexOf(v)>-1}).slice(0,30),'Koi khabar nahi mili.')};
+  var M=S.more;M.appendChild(E('h2',0,'Parligroundreport 24x7'));M.appendChild(E('p','mt','Parli Ground Report: Parli Vaijnath, Beed aur Maharashtra ki local khabrein, ground reports aur public issues.'));
+  [['\ud83d\udcde Call karein','tel:+917507200931'],['\ud83d\udcac WhatsApp','https://wa.me/917507200931'],['\u2709\ufe0f Email','mailto:Parligroundreport24x7@gmail.com'],['\u25b6\ufe0f YouTube','https://www.youtube.com/@parligroundreport24x7'],['\ud83d\udcf7 Instagram','https://www.instagram.com/parli_groundreport__24x7'],['\ud83d\udc4d Facebook','https://www.facebook.com/share/1CNRHarVUg/'],['\ud83c\udf10 Poori website (policy waghera)','?app=0']].forEach(function(x){var a=E('a','ai',x[0]);a.href=x[1];if(x[1].indexOf('http')===0)a.target='_blank';M.appendChild(a)});
+  var tb=E('button','ai','\ud83c\udf13 Dark / Light mode');tb.type='button';tb.onclick=function(){var b=$('thm');if(b)b.click()};M.appendChild(tb);
+  var nv=E('div','ab');TABS.forEach(function(x){var b=E('button');b.type='button';b.appendChild(E('span',0,x[1]));b.appendChild(document.createTextNode(x[2]));b.onclick=function(){show(x[0])};NB[x[0]]=b;nv.appendChild(b)});A.appendChild(nv);
+  document.body.appendChild(A);$('mx').textContent='\u2190 Wapas';document.body.classList.add('ready');show('home');
 }
 var td=$('today');if(td)td.textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 cats();
