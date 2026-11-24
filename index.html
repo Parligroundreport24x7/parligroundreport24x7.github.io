@@ -267,6 +267,19 @@ function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return imp
 Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){render(r[0].concat(r[1]))});
 })();
 </script>
-</div>
+</div> 
+  <!-- DARK/LIGHT MODE START -->
+<button id="thm" type="button" aria-label="Dark ya Light mode badlein" style="position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:50;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer">🌓</button>
+<script>
+(function(){
+var r=document.documentElement,b=document.getElementById('thm');
+function cur(){return r.getAttribute('data-theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+function set(t){r.setAttribute('data-theme',t);b.textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem('pgr_theme',t)}catch(e){}}
+var s='';try{s=localStorage.getItem('pgr_theme')||''}catch(e){}
+if(s==='dark'||s==='light')set(s);else b.textContent=cur()==='dark'?'☀️':'🌙';
+b.onclick=function(){set(cur()==='dark'?'light':'dark')};
+})();
+</script>
+<!-- DARK/LIGHT MODE END -->
 </body>
 </html>
