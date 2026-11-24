@@ -1,95 +1,86 @@
 <!DOCTYPE html>
 <html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>PGR Admin Panel</title>
+<meta name="robots" content="noindex,nofollow"><title>Admin | Parligroundreport 24x7</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#0b1020;color:#e8ecf5}
-.w{max-width:560px;margin:auto;padding:14px}h2{margin:6px 0 12px}
-.cd{background:#121a30;border:1px solid #22304f;border-radius:12px;padding:14px;margin-bottom:14px}
-label{display:block;margin:10px 0 4px;font-size:14px;font-weight:600}
-input,select,textarea{width:100%;padding:11px;border-radius:8px;border:1px solid #22304f;background:#0b1020;color:#e8ecf5;font-size:15px}
-textarea{min-height:160px}input[type=checkbox]{width:auto;margin-right:8px}
-button{background:#d90429;color:#fff;border:0;border-radius:8px;padding:12px;font-size:15px;font-weight:700;width:100%;margin-top:12px}
-button.s{background:#22304f;width:auto;padding:7px 12px;margin:6px 6px 0 0;font-size:13px}
-.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{margin:0;background:#22304f;padding:10px 4px;font-size:13px}.tabs button.on{background:#d90429}
-#msg{position:fixed;left:10px;right:10px;bottom:10px;background:#2b3b66;padding:12px;border-radius:8px;display:none;text-align:center;z-index:9}
-.it{border-top:1px solid #22304f;padding:10px 0;font-size:14px;word-break:break-word}.it small{color:#9aa6c4}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#f6f7f9;color:#14181f}
+.w{max-width:600px;margin:auto;padding:14px}h1{font-size:24px;margin:6px 0;color:#0b3d91}
+.b{background:#fff;border:1px solid #d9dee5;border-radius:10px;padding:14px;margin-bottom:14px}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d9dee5;border-radius:8px;font:inherit;background:#fff;color:#14181f}
+textarea{min-height:150px}input[type=checkbox]{width:auto;margin-right:8px}
+button{padding:12px 16px;border:0;border-radius:8px;background:#0b3d91;color:#fff;font:600 16px system-ui;margin-top:14px;width:100%}
+button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0 0;font-size:13px;background:#5b6573}button.d{background:#c62828}
+.it{border-top:1px solid #d9dee5;padding:9px 0;font-size:14px;word-break:break-word}.it small{color:#5b6573}
+#msg{position:fixed;left:10px;right:10px;bottom:10px;background:#14181f;color:#fff;padding:12px;border-radius:8px;display:none;text-align:center;z-index:9}
+[hidden]{display:none!important}
 </style></head><body><div class="w">
-<h2>PGR Admin Panel</h2>
-<div id="lg" class="cd"><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
-<div id="ap" style="display:none">
-<div class="tabs"><button data-t="a" class="on">Add News</button><button data-t="l">News List</button><button data-t="b">Breaking</button><button data-t="r">Reels</button></div>
-<div id="a" class="cd"><b>Nayi News</b>
-<label>News Headline</label><input id="ti" placeholder="Headline likho...">
-<label>Category</label><select id="ca"><option>Parli News</option><option>Beed</option><option>Maharashtra</option><option>National</option><option>Politics</option><option>Crime</option><option>Sports</option><option>Entertainment</option><option>Other</option></select>
-<label>Location (optional)</label><input id="lo" placeholder="Parli Vaijnath">
-<label>News Description</label><textarea id="de" placeholder="Poori news likho..."></textarea>
-<label>Photo (optional)</label><input id="ph" type="file" accept="image/*">
-<label>Status</label><select id="st"><option value="publish">Publish</option><option value="draft">Draft (abhi mat dikhao)</option></select>
+<h1>Admin Panel</h1><p style="color:#5b6573;margin:0 0 10px">Sirf aapke liye. Is page ka link kisi ko mat dijiye.</p>
+<div id="lg" class="b"><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
+<div id="ap" hidden>
+<div class="b"><b>Nayi post</b>
+<label>Type</label><select id="ty"><option value="news">Khabar (photo ke saath)</option><option value="breaking">Breaking (ticker)</option><option value="reel">Instagram Reel</option></select>
+<div id="fn"><label>Category</label><select id="ca">
+<option value="parli">Parli News</option><option value="beed">Beed News</option><option value="maharashtra">Maharashtra</option><option value="india">India News</option><option value="politics">Politics</option><option value="crime">Crime News</option><option value="accident">Accident News</option><option value="education">Education</option><option value="schemes">Govt Schemes</option><option value="business">Business</option><option value="sports">Sports</option><option value="entertainment">Entertainment</option><option value="public">Public Issues</option><option value="special">Special Reports</option></select>
+<label>Jagah (optional)</label><input id="pl" placeholder="Parli Vaijnath"></div>
+<div id="ft"><label>Headline</label><input id="ti" maxlength="200"></div>
+<div id="fb"><label>Khabar</label><textarea id="bo"></textarea><label>Photo (optional)</label><input id="ph" type="file" accept="image/*"></div>
+<div id="fr" hidden><label>Instagram reel ka link</label><input id="ru" placeholder="https://www.instagram.com/reel/..."></div>
+<div id="fo"><label>Status</label><select id="st"><option value="publish">Publish</option><option value="draft">Draft (abhi mat dikhao)</option></select>
 <label>Schedule (optional, baad ka time)</label><input id="sc" type="datetime-local">
-<label><input id="tp" type="checkbox">Top Headline banao</label>
-<button id="pb">Publish News</button></div>
-<div id="l" class="cd" hidden><b>Meri News</b><div id="ls"></div></div>
-<div id="b" class="cd" hidden><b>Breaking News Ticker</b><label>Breaking text</label><input id="bt" placeholder="Breaking khabar likho...">
-<button id="bs">Save Breaking</button><button id="bc" class="s">Hatao (Clear)</button></div>
-<div id="r" class="cd" hidden><b>Instagram Reel add karo</b><label>Reel link</label><input id="ru" placeholder="https://www.instagram.com/reel/...">
-<button id="ra">Reel Add Karo</button><div id="rl"></div></div>
-<button id="lo2" class="s">Logout</button>
-</div></div><div id="msg"></div>
+<label><input id="tp" type="checkbox">Top Story banao</label></div>
+<button id="pb">Publish karein</button></div>
+<div class="b"><b>Nayi posts (is panel se)</b><div id="ls"></div></div>
+<button id="lo" class="s">Logout</button></div></div><div id="msg"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,getDocs,query,orderBy,deleteDoc,updateDoc,doc,setDoc,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,getDocs,deleteDoc,updateDoc,doc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"});
-const auth=getAuth(app),db=getFirestore(app),CLOUD="h87lzxgl",PRESET="pgr_news";
-const $=i=>document.getElementById(i);
+const auth=getAuth(app),db=getFirestore(app),$=i=>document.getElementById(i);
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const m=t=>{const e=$("msg");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)};
+const m=t=>{const e=$("msg");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",4000)};
 $("li").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){m("Email ya password galat hai")}};
-$("lo2").onclick=()=>signOut(auth);
-onAuthStateChanged(auth,u=>{$("lg").style.display=u?"none":"";$("ap").style.display=u?"":"none";if(u){loadNews();loadReels()}});
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
- document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
- ["a","l","b","r"].forEach(id=>$(id).hidden=id!==b.dataset.t);
-});
+$("lo").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{$("lg").hidden=!!u;$("ap").hidden=!u;if(u)load()});
+$("ty").onchange=()=>{const t=$("ty").value;$("fn").hidden=t!=="news";$("fb").hidden=t!=="news";$("fr").hidden=t!=="reel";$("ft").hidden=t==="reel";$("fo").hidden=t==="reel"};
 $("pb").onclick=async()=>{
- const t=$("ti").value.trim(),d=$("de").value.trim();
- if(!t||!d)return m("Headline aur description zaroori hai");
- $("pb").disabled=true;$("pb").textContent="Ho raha hai...";
+ const t=$("ty").value,b=$("pb");b.disabled=true;
  try{
-  let img="";const f=$("ph").files[0];
-  if(f){const fd=new FormData();fd.append("file",f);fd.append("upload_preset",PRESET);
-   const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:"POST",body:fd});
-   const j=await r.json();if(!j.secure_url)throw new Error("Photo upload nahi hui");img=j.secure_url}
-  const sc=$("sc").value;
-  await addDoc(collection(db,"news"),{title:t,description:d,category:$("ca").value,location:$("lo").value.trim(),image:img,status:$("st").value,top:$("tp").checked,publishAt:sc?Timestamp.fromDate(new Date(sc)):Timestamp.now(),createdAt:serverTimestamp()});
-  m("News save ho gayi");
-  ["ti","de","lo","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;loadNews();
+  const p={type:t,status:"publish",date:new Date().toISOString()};
+  if(t==="reel"){const r=$("ru").value.match(/instagram\.com\/(?:[^\/?#]+\/)?(?:reel|reels|p)\/([A-Za-z0-9_-]+)/);if(!r)throw new Error("Reel ka sahi link daaliye");p.reel=r[1];p.title="Reel"}
+  else{
+   const ti=$("ti").value.trim();if(!ti)throw new Error("Headline likhiye");p.title=ti;
+   p.status=$("st").value;if($("sc").value)p.date=new Date($("sc").value).toISOString();
+   if(t==="news"){
+    p.cat=$("ca").value;p.place=$("pl").value.trim();p.body=$("bo").value.trim();p.top=$("tp").checked;
+    const f=$("ph").files[0];
+    if(f){b.textContent="Photo upload ho rahi hai...";const fd=new FormData();fd.append("file",f);fd.append("upload_preset","pgr_news");
+     const r=await fetch("https://api.cloudinary.com/v1_1/h87lzxgl/image/upload",{method:"POST",body:fd});const j=await r.json();
+     if(!j.secure_url)throw new Error("Photo upload nahi hui");p.img=j.secure_url}
+   }
+  }
+  b.textContent="Publish ho raha hai...";
+  await addDoc(collection(db,"posts"),p);
+  m("Ho gaya! Website par turant dikhegi.");
+  ["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;load();
  }catch(e){m("Error: "+e.message)}
- $("pb").disabled=false;$("pb").textContent="Publish News";
+ b.disabled=false;b.textContent="Publish karein";
 };
-async function loadNews(){
- const s=await getDocs(query(collection(db,"news"),orderBy("createdAt","desc")));
- $("ls").innerHTML=s.docs.map(d=>{const n=d.data();return `<div class="it"><b>${esc(n.title)}</b><br><small>${esc(n.category)} | ${n.status==="publish"?"Publish":"Draft"}${n.top?" | Top":""}</small><br>
- <button class="s" data-id="${d.id}" data-a="st" data-v="${n.status}">${n.status==="publish"?"Draft karo":"Publish karo"}</button>
- <button class="s" data-id="${d.id}" data-a="tp" data-v="${n.top?1:0}">${n.top?"Top hatao":"Top banao"}</button>
- <button class="s" data-id="${d.id}" data-a="del">Delete</button></div>`}).join("")||"<p>Abhi koi news nahi.</p>";
+async function load(){
+ const s=await getDocs(collection(db,"posts"));
+ const a=s.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>new Date(y.date)-new Date(x.date));
+ $("ls").innerHTML=a.map(p=>`<div class="it"><b>${esc(p.type==="reel"?"Reel "+p.reel:p.title)}</b><br><small>${esc(p.type)} | ${p.status==="draft"?"Draft":"Publish"}${p.top?" | Top":""} | ${esc((p.date||"").slice(0,10))}</small><br>
+ ${p.type!=="reel"?`<button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
+ ${p.type==="news"?`<button class="s" data-id="${p.id}" data-a="tp" data-v="${p.top?1:0}">${p.top?"Top hatao":"Top banao"}</button>`:""}
+ <button class="s d" data-id="${p.id}" data-a="del">Delete</button></div>`).join("")||"<p>Abhi koi nayi post nahi.</p>";
 }
 $("ls").onclick=async e=>{
- const b=e.target.closest("button");if(!b)return;const r=doc(db,"news",b.dataset.id);
- if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;await deleteDoc(r)}
- if(b.dataset.a==="st")await updateDoc(r,{status:b.dataset.v==="publish"?"draft":"publish"});
- if(b.dataset.a==="tp")await updateDoc(r,{top:b.dataset.v!=="1"});
- loadNews();
+ const b=e.target.closest("button");if(!b)return;const r=doc(db,"posts",b.dataset.id);
+ try{
+  if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;await deleteDoc(r)}
+  if(b.dataset.a==="st")await updateDoc(r,{status:b.dataset.v==="draft"?"publish":"draft"});
+  if(b.dataset.a==="tp")await updateDoc(r,{top:b.dataset.v!=="1"});
+  load();
+ }catch(x){m("Error: "+x.message)}
 };
-$("bs").onclick=async()=>{await setDoc(doc(db,"settings","breaking"),{text:$("bt").value.trim()});m("Breaking save ho gayi")};
-$("bc").onclick=async()=>{await setDoc(doc(db,"settings","breaking"),{text:""});$("bt").value="";m("Breaking hata di")};
-$("ra").onclick=async()=>{
- const u=$("ru").value.trim();if(!/instagram\.com\/(reel|p)\//.test(u))return m("Sahi Instagram reel link daalo");
- await addDoc(collection(db,"videos"),{url:u,createdAt:serverTimestamp()});$("ru").value="";m("Reel add ho gayi");loadReels();
-};
-async function loadReels(){
- const s=await getDocs(query(collection(db,"videos"),orderBy("createdAt","desc")));
- $("rl").innerHTML=s.docs.map(d=>`<div class="it">${esc(d.data().url)}<br><button class="s" data-id="${d.id}">Delete</button></div>`).join("");
-}
-$("rl").onclick=async e=>{const b=e.target.closest("button");if(!b||!confirm("Delete karna hai?"))return;await deleteDoc(doc(db,"videos",b.dataset.id));loadReels()};
 </script></body></html>
