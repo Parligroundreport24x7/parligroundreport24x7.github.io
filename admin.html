@@ -1,312 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<title>PGR Admin Panel</title>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>PGR Admin Panel</title>
 <style>
-:root{--bg:#0a1220;--pn:#111c30;--tx:#eaf0fa;--mu:#9fb0c9;--ln:#243652;--bl:#2f6fed;--rd:#d7191f;--ok:#2bb673}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,sans-serif}
-.w{max-width:680px;margin:0 auto;padding:16px}
-h1{font-size:24px;margin:6px 0 2px}h2{font-size:20px;margin:0 0 10px}
-.m{color:var(--mu);margin:0 0 14px}
-.b{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:16px;margin-bottom:14px}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.t{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:14px;text-align:left;color:var(--tx);font:inherit;cursor:pointer}
-.t.on{border-color:var(--bl)}
-.t b{display:block;font-size:18px}.t span{color:var(--mu);font-size:14px}
-.t i{font-style:normal;font-size:24px;display:block}
-label{display:block;font-weight:600;margin:12px 0 4px}
-input,select,textarea{width:100%;padding:11px;border:1px solid var(--ln);border-radius:10px;background:#0a1220;color:var(--tx);font:inherit}
-input[type=checkbox]{width:auto;margin-right:8px}
-textarea{min-height:140px}
-.ck{display:flex;align-items:center;margin-top:12px;font-weight:600}
-button.p{padding:13px 18px;border:0;border-radius:10px;background:var(--bl);color:#fff;font:700 16px system-ui;margin-top:14px;width:100%}
-button.g{background:transparent;color:var(--mu);border:1px solid var(--ln);padding:11px;border-radius:10px;font:inherit}
-button:disabled{opacity:.5}
-.r{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--ln)}
-.r span{overflow-wrap:anywhere;flex:1}.r small{display:block;color:var(--mu)}
-.r button{border:0;border-radius:8px;padding:7px 11px;font-size:14px;color:#fff;background:var(--bl)}
-.r button.d{background:var(--rd)}
-.ok{color:var(--ok);margin-top:10px}.er{color:#ff7b7b;margin-top:10px}
-[hidden]{display:none!important}
-</style>
-</head>
-<body>
-<div class="w">
-<h1>PGR Admin Panel</h1>
-<p class="m">Parligroundreport 24x7. Is page ka link kisi ko mat dijiye.</p>
-
-<div id="login" class="b">
-<h2>Login</h2>
-<label for="tk">GitHub token</label>
-<input id="tk" type="password" autocomplete="off" placeholder="github_pat_...">
-<button class="p" id="go">Login</button>
-<div id="ls"></div>
-</div>
-
-<div id="app" hidden>
-<div class="tiles">
-<button class="t" data-p="total"><i>&#128240;</i><b>Total News</b><span id="cnt">All Articles</span></button>
-<button class="t on" data-p="add"><i>&#10133;</i><b>Add News</b><span>Publish Article</span></button>
-<button class="t" data-p="vid"><i>&#127910;</i><b>Videos</b><span>Reel / YouTube</span></button>
-<button class="t" data-p="brk"><i>&#128680;</i><b>Breaking</b><span>Ticker update</span></button>
-<button class="t" data-p="cats"><i>&#128193;</i><b>Categories</b><span>Sections</span></button>
-<button class="t" data-p="set"><i>&#9881;&#65039;</i><b>Settings</b><span>Logout</span></button>
-</div>
-
-<div class="b" id="p-add">
-<h2 id="addh">Add News Form</h2>
-<label for="t">News Headline</label><input id="t" maxlength="200" placeholder="Enter news title...">
-<label for="cat">Select Category</label><select id="cat"></select>
-<label for="pl">Location (optional)</label><input id="pl" placeholder="Parli Vaijnath">
-<label for="bd">News Description</label><textarea id="bd" placeholder="Write complete news..."></textarea>
-<label for="ph">Upload News Photo</label><input id="ph" type="file" accept="image/*">
-<label for="stt">Status</label>
-<select id="stt"><option value="published">Publish</option><option value="draft">Draft (website par nahi dikhegi)</option></select>
-<label for="dt">Schedule (optional, baad ka time)</label><input id="dt" type="datetime-local">
-<label class="ck"><input id="top" type="checkbox">Top Headline banao</label>
-<button class="p" id="pub">Publish News</button>
-<button class="g" id="cx" hidden style="margin-top:10px;width:100%">Edit cancel</button>
-<div id="st"></div>
-</div>
-
-<div class="b" id="p-total" hidden><h2>Total News</h2><div id="l-news"></div></div>
-
-<div class="b" id="p-vid" hidden>
-<h2>Reel Upload</h2>
-<label for="vf">Reel video chuniye (MP4, 25 MB tak)</label><input id="vf" type="file" accept="video/mp4,video/webm">
-<label for="vtt">Reel ka title (optional)</label><input id="vtt" maxlength="120" placeholder="Parli ground report">
-<button class="p" id="vup">Reel upload karein</button>
-<div id="vus"></div>
-<h2 style="margin-top:22px">Ya link se jodiye</h2>
-<label for="vu">Instagram reel ya YouTube link</label><input id="vu" inputmode="url" placeholder="https://...">
-<button class="p" id="vpub">Video jodiye</button>
-<div id="vs"></div>
-<h2 style="margin-top:18px">Published videos</h2><div id="l-vid"></div>
-</div>
-
-<div class="b" id="p-brk" hidden>
-<h2>Breaking News Ticker</h2>
-<label for="bt">Breaking headline</label><input id="bt" maxlength="200">
-<button class="p" id="bpub">Ticker mein jodiye</button>
-<div id="bs"></div>
-<h2 style="margin-top:18px">Chalu breaking</h2><div id="l-brk"></div>
-</div>
-
-<div class="b" id="p-cats" hidden>
-<h2>Categories</h2>
-<p class="m" id="catlist"></p>
-</div>
-
-<div class="b" id="p-set" hidden>
-<h2>Settings</h2>
-<p class="m">Logout karne par token is phone se hat jayega.</p>
-<button class="g" id="out" style="width:100%">Logout</button>
-</div>
-</div>
-</div>
-
-<script>
-var OWNER='Parligroundreport24x7',REPO='parligroundreport24x7.github.io';
-var API='https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/';
-var CATS={parli:'Parli News',beed:'Beed News',maharashtra:'Maharashtra',india:'India News',politics:'Politics',crime:'Crime News',accident:'Accident News',education:'Education',schemes:'Govt Schemes',business:'Business',sports:'Sports',entertainment:'Entertainment',public:'Public Issues',special:'Special Reports'};
-var $=function(i){return document.getElementById(i)};
-var editId=null,CUR=[];
-function tk(){try{return localStorage.getItem('pgr_tk')||''}catch(e){return ''}}
-function hdr(j){var h={'Authorization':'Bearer '+tk(),'Accept':'application/vnd.github+json'};if(j)h['Content-Type']='application/json';return h}
-function msg(id,m,bad){var s=$(id);s.textContent=m;s.className=bad?'er':'ok'}
-function b64(s){return btoa(unescape(encodeURIComponent(s)))}
-function unb64(s){return decodeURIComponent(escape(atob(s.replace(/\s/g,''))))}
-async function gh(path,opt){
-  var r=await fetch(API+path,opt||{headers:hdr()});
-  if(r.status===404)return null;
-  if(!r.ok){var t='';try{t=(await r.json()).message}catch(e){}throw new Error(r.status+' '+t)}
-  return r.json();
-}
-function put(path,o){return gh(path,{method:'PUT',headers:hdr(1),body:JSON.stringify(o)})}
-async function getPosts(){
-  var f=await gh('posts.json?ref=main&t='+Date.now());
-  if(!f)return{sha:null,list:[]};
-  var l=[];try{l=JSON.parse(unb64(f.content))}catch(e){}
-  return{sha:f.sha,list:l};
-}
-async function mutate(fn,m){
-  var c=await getPosts(),r=fn(c.list)||c.list;
-  var o={message:m,content:b64(JSON.stringify(r,null,1)),branch:'main'};
-  if(c.sha)o.sha=c.sha;
-  await put('posts.json',o);
-}
-function shrink(file){
-  return new Promise(function(res,rej){
-    var im=new Image(),u=URL.createObjectURL(file);
-    im.onload=function(){
-      var s=Math.min(1,1280/im.width),c=document.createElement('canvas');
-      c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
-      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-      URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.8).split(',')[1]);
-    };
-    im.onerror=function(){rej(new Error('Photo nahi khuli'))};
-    im.src=u;
-  });
-}
-function fillCats(){
-  var s=$('cat'),l=[];
-  if(!s.options.length)Object.keys(CATS).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CATS[k];s.appendChild(o)});
-  Object.keys(CATS).forEach(function(k){l.push(CATS[k])});
-  $('catlist').textContent=l.join(' \u2022 ');
-}
-function panel(n){
-  ['add','total','vid','brk','cats','set'].forEach(function(k){$('p-'+k).hidden=(k!==n)});
-  document.querySelectorAll('.t').forEach(function(b){b.className='t'+(b.dataset.p===n?' on':'')});
-  if(n==='total'||n==='vid'||n==='brk')load();
-}
-document.querySelectorAll('.t').forEach(function(b){b.onclick=function(){panel(b.dataset.p)}});
-function show(on){$('login').hidden=on;$('app').hidden=!on;if(on){fillCats();load()}}
-
-$('go').onclick=async function(){
-  var v=$('tk').value.trim(),b=this;
-  if(!v){msg('ls','Token daaliye.',1);return}
-  b.disabled=true;
-  try{localStorage.setItem('pgr_tk',v)}catch(e){}
-  try{await getPosts();$('tk').value='';show(true)}
-  catch(e){try{localStorage.removeItem('pgr_tk')}catch(x){}msg('ls','Token sahi nahi hai ('+e.message+')',1)}
-  b.disabled=false;
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#0b1020;color:#e8ecf5}
+.w{max-width:560px;margin:auto;padding:14px}h2{margin:6px 0 12px}
+.cd{background:#121a30;border:1px solid #22304f;border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;margin:10px 0 4px;font-size:14px;font-weight:600}
+input,select,textarea{width:100%;padding:11px;border-radius:8px;border:1px solid #22304f;background:#0b1020;color:#e8ecf5;font-size:15px}
+textarea{min-height:160px}input[type=checkbox]{width:auto;margin-right:8px}
+button{background:#d90429;color:#fff;border:0;border-radius:8px;padding:12px;font-size:15px;font-weight:700;width:100%;margin-top:12px}
+button.s{background:#22304f;width:auto;padding:7px 12px;margin:6px 6px 0 0;font-size:13px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{margin:0;background:#22304f;padding:10px 4px;font-size:13px}.tabs button.on{background:#d90429}
+#msg{position:fixed;left:10px;right:10px;bottom:10px;background:#2b3b66;padding:12px;border-radius:8px;display:none;text-align:center;z-index:9}
+.it{border-top:1px solid #22304f;padding:10px 0;font-size:14px;word-break:break-word}.it small{color:#9aa6c4}
+</style></head><body><div class="w">
+<h2>PGR Admin Panel</h2>
+<div id="lg" class="cd"><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
+<div id="ap" style="display:none">
+<div class="tabs"><button data-t="a" class="on">Add News</button><button data-t="l">News List</button><button data-t="b">Breaking</button><button data-t="r">Reels</button></div>
+<div id="a" class="cd"><b>Nayi News</b>
+<label>News Headline</label><input id="ti" placeholder="Headline likho...">
+<label>Category</label><select id="ca"><option>Parli News</option><option>Beed</option><option>Maharashtra</option><option>National</option><option>Politics</option><option>Crime</option><option>Sports</option><option>Entertainment</option><option>Other</option></select>
+<label>Location (optional)</label><input id="lo" placeholder="Parli Vaijnath">
+<label>News Description</label><textarea id="de" placeholder="Poori news likho..."></textarea>
+<label>Photo (optional)</label><input id="ph" type="file" accept="image/*">
+<label>Status</label><select id="st"><option value="publish">Publish</option><option value="draft">Draft (abhi mat dikhao)</option></select>
+<label>Schedule (optional, baad ka time)</label><input id="sc" type="datetime-local">
+<label><input id="tp" type="checkbox">Top Headline banao</label>
+<button id="pb">Publish News</button></div>
+<div id="l" class="cd" hidden><b>Meri News</b><div id="ls"></div></div>
+<div id="b" class="cd" hidden><b>Breaking News Ticker</b><label>Breaking text</label><input id="bt" placeholder="Breaking khabar likho...">
+<button id="bs">Save Breaking</button><button id="bc" class="s">Hatao (Clear)</button></div>
+<div id="r" class="cd" hidden><b>Instagram Reel add karo</b><label>Reel link</label><input id="ru" placeholder="https://www.instagram.com/reel/...">
+<button id="ra">Reel Add Karo</button><div id="rl"></div></div>
+<button id="lo2" class="s">Logout</button>
+</div></div><div id="msg"></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,getDocs,query,orderBy,deleteDoc,updateDoc,doc,setDoc,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"});
+const auth=getAuth(app),db=getFirestore(app),CLOUD="h87lzxgl",PRESET="pgr_news";
+const $=i=>document.getElementById(i);
+const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const m=t=>{const e=$("msg");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)};
+$("li").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){m("Email ya password galat hai")}};
+$("lo2").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{$("lg").style.display=u?"none":"";$("ap").style.display=u?"":"none";if(u){loadNews();loadReels()}});
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+ ["a","l","b","r"].forEach(id=>$(id).hidden=id!==b.dataset.t);
+});
+$("pb").onclick=async()=>{
+ const t=$("ti").value.trim(),d=$("de").value.trim();
+ if(!t||!d)return m("Headline aur description zaroori hai");
+ $("pb").disabled=true;$("pb").textContent="Ho raha hai...";
+ try{
+  let img="";const f=$("ph").files[0];
+  if(f){const fd=new FormData();fd.append("file",f);fd.append("upload_preset",PRESET);
+   const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:"POST",body:fd});
+   const j=await r.json();if(!j.secure_url)throw new Error("Photo upload nahi hui");img=j.secure_url}
+  const sc=$("sc").value;
+  await addDoc(collection(db,"news"),{title:t,description:d,category:$("ca").value,location:$("lo").value.trim(),image:img,status:$("st").value,top:$("tp").checked,publishAt:sc?Timestamp.fromDate(new Date(sc)):Timestamp.now(),createdAt:serverTimestamp()});
+  m("News save ho gayi");
+  ["ti","de","lo","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;loadNews();
+ }catch(e){m("Error: "+e.message)}
+ $("pb").disabled=false;$("pb").textContent="Publish News";
 };
-$('out').onclick=function(){try{localStorage.removeItem('pgr_tk')}catch(e){}show(false)};
-
-function toLocal(iso){var d=new Date(iso);if(isNaN(d))return '';var p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
-function resetForm(){
-  editId=null;['t','pl','bd','ph','dt'].forEach(function(k){$(k).value=''});
-  $('top').checked=false;$('stt').value='published';$('addh').textContent='Add News Form';$('pub').textContent='Publish News';$('cx').hidden=true;
+async function loadNews(){
+ const s=await getDocs(query(collection(db,"news"),orderBy("createdAt","desc")));
+ $("ls").innerHTML=s.docs.map(d=>{const n=d.data();return `<div class="it"><b>${esc(n.title)}</b><br><small>${esc(n.category)} | ${n.status==="publish"?"Publish":"Draft"}${n.top?" | Top":""}</small><br>
+ <button class="s" data-id="${d.id}" data-a="st" data-v="${n.status}">${n.status==="publish"?"Draft karo":"Publish karo"}</button>
+ <button class="s" data-id="${d.id}" data-a="tp" data-v="${n.top?1:0}">${n.top?"Top hatao":"Top banao"}</button>
+ <button class="s" data-id="${d.id}" data-a="del">Delete</button></div>`}).join("")||"<p>Abhi koi news nahi.</p>";
 }
-$('cx').onclick=function(){resetForm();msg('st','')};
-
-$('pub').onclick=async function(){
-  var btn=this;btn.disabled=true;msg('st','');
-  try{
-    var ti=$('t').value.trim();
-    if(!ti)throw new Error('Headline likhiye');
-    var id=editId||Date.now().toString(36),img='';
-    var f=$('ph').files[0];
-    if(f){
-      msg('st','Photo upload ho rahi hai...');
-      var d=await shrink(f),sha=null;
-      var ex=await gh('images/'+id+'.jpg?ref=main');if(ex)sha=ex.sha;
-      var o={message:'photo '+id,content:d,branch:'main'};if(sha)o.sha=sha;
-      await put('images/'+id+'.jpg',o);img='images/'+id+'.jpg';
-    }
-    msg('st','Publish ho raha hai...');
-    var dtv=$('dt').value;
-    await mutate(function(l){
-      var old=l.find(function(x){return x.id===id});
-      var p={id:id,type:'news',cat:$('cat').value,title:ti,place:$('pl').value.trim(),body:$('bd').value.trim(),
-        date:dtv?new Date(dtv).toISOString():(old?old.date:new Date().toISOString()),
-        status:$('stt').value,top:$('top').checked,img:img||(old&&old.img)||''};
-      if(old)l[l.indexOf(old)]=p;else l.unshift(p);
-    },(editId?'edit ':'new ')+id);
-    msg('st','Ho gaya! Website par 1-2 minute mein dikhega.');
-    resetForm();load();
-  }catch(e){msg('st','Error: '+e.message,1)}
-  btn.disabled=false;
+$("ls").onclick=async e=>{
+ const b=e.target.closest("button");if(!b)return;const r=doc(db,"news",b.dataset.id);
+ if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;await deleteDoc(r)}
+ if(b.dataset.a==="st")await updateDoc(r,{status:b.dataset.v==="publish"?"draft":"publish"});
+ if(b.dataset.a==="tp")await updateDoc(r,{top:b.dataset.v!=="1"});
+ loadNews();
 };
-
-$('vpub').onclick=async function(){
-  var btn=this,u=$('vu').value.trim();btn.disabled=true;msg('vs','');
-  try{
-    var p={id:Date.now().toString(36),type:'',date:new Date().toISOString()};
-    var m=u.match(/instagram\.com\/(?:[^\/?#]+\/)?(?:reel|reels|p)\/([A-Za-z0-9_-]+)/);
-    var y=u.match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
-    if(m){p.type='reel';p.reel=m[1];p.title='Reel'}
-    else if(y){p.type='video';p.yt=y[1];p.title='YouTube video'}
-    else throw new Error('Instagram reel ya YouTube ka sahi link daaliye');
-    await mutate(function(l){l.unshift(p)},'new '+p.type);
-    msg('vs','Ho gaya! Website par 1-2 minute mein dikhega.');$('vu').value='';load();
-  }catch(e){msg('vs','Error: '+e.message,1)}
-  btn.disabled=false;
+$("bs").onclick=async()=>{await setDoc(doc(db,"settings","breaking"),{text:$("bt").value.trim()});m("Breaking save ho gayi")};
+$("bc").onclick=async()=>{await setDoc(doc(db,"settings","breaking"),{text:""});$("bt").value="";m("Breaking hata di")};
+$("ra").onclick=async()=>{
+ const u=$("ru").value.trim();if(!/instagram\.com\/(reel|p)\//.test(u))return m("Sahi Instagram reel link daalo");
+ await addDoc(collection(db,"videos"),{url:u,createdAt:serverTimestamp()});$("ru").value="";m("Reel add ho gayi");loadReels();
 };
-
-
-function fileB64(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1])};r.onerror=function(){rej(new Error('File padh nahi payi'))};r.readAsDataURL(file)})}
-$('vup').onclick=async function(){
-  var btn=this,f=$('vf').files[0];btn.disabled=true;msg('vus','');
-  try{
-    if(!f)throw new Error('Pehle video chuniye');
-    var ext=f.type==='video/mp4'?'mp4':(f.type==='video/webm'?'webm':'');
-    if(!ext)throw new Error('Sirf MP4 ya WebM video chalegi');
-    if(f.size>25*1024*1024)throw new Error('Video 25 MB se chhota hona chahiye (abhi '+(f.size/1048576).toFixed(1)+' MB hai)');
-    var id=Date.now().toString(36),path='videos/'+id+'.'+ext;
-    msg('vus','Video upload ho raha hai... thoda time lagega, page band mat kijiye.');
-    var b=await fileB64(f);
-    await put(path,{message:'video '+id,content:b,branch:'main'});
-    await mutate(function(l){l.unshift({id:id,type:'vfile',video:path,title:$('vtt').value.trim()||'Reel',date:new Date().toISOString()})},'new vfile '+id);
-    msg('vus','Ho gaya! Website par 1-2 minute mein dikhega.');$('vf').value='';$('vtt').value='';load();
-  }catch(e){msg('vus','Error: '+e.message,1)}
-  btn.disabled=false;
-};
-
-$('bpub').onclick=async function(){
-  var btn=this,t=$('bt').value.trim();btn.disabled=true;msg('bs','');
-  try{
-    if(!t)throw new Error('Breaking headline likhiye');
-    await mutate(function(l){l.unshift({id:Date.now().toString(36),type:'breaking',title:t,date:new Date().toISOString()})},'breaking');
-    msg('bs','Ho gaya! Ticker 1-2 minute mein badlega.');$('bt').value='';load();
-  }catch(e){msg('bs','Error: '+e.message,1)}
-  btn.disabled=false;
-};
-
-function rowEl(p,label,btns){
-  var r=document.createElement('div');r.className='r';
-  var s=document.createElement('span');s.textContent=label;
-  var sm=document.createElement('small');sm.textContent=(p.status==='draft'?'DRAFT \u2022 ':'')+new Date(p.date).toLocaleString('en-IN');s.appendChild(sm);
-  r.appendChild(s);btns.forEach(function(b){r.appendChild(b)});return r;
+async function loadReels(){
+ const s=await getDocs(query(collection(db,"videos"),orderBy("createdAt","desc")));
+ $("rl").innerHTML=s.docs.map(d=>`<div class="it">${esc(d.data().url)}<br><button class="s" data-id="${d.id}">Delete</button></div>`).join("");
 }
-function btn(t,cls,fn){var b=document.createElement('button');b.textContent=t;if(cls)b.className=cls;b.onclick=fn;return b}
-function fillList(id,arr,mk,empty){
-  var el=$(id);el.textContent='';
-  if(!arr.length){el.textContent=empty;return}
-  arr.forEach(function(p){el.appendChild(mk(p))});
-}
-async function load(){
-  try{
-    var c=await getPosts();CUR=c.list;
-    var news=CUR.filter(function(p){return p.type==='news'});
-    $('cnt').textContent=news.length+' Articles';
-    fillList('l-news',news,function(p){
-      return rowEl(p,p.title,[btn('Edit','',function(){edit(p.id)}),btn('Delete','d',function(){del(p.id)})]);
-    },'Abhi koi khabar nahi.');
-    fillList('l-vid',CUR.filter(function(p){return p.type==='reel'||p.type==='video'||p.type==='vfile'}),function(p){
-      return rowEl(p,(p.type==='vfile'?'Upload: '+(p.title||'Reel'):(p.type==='reel'?'Reel ':'YouTube ')+(p.reel||p.yt)),[btn('Delete','d',function(){del(p.id)})]);
-    },'Abhi koi video nahi.');
-    fillList('l-brk',CUR.filter(function(p){return p.type==='breaking'}),function(p){
-      return rowEl(p,p.title,[btn('Delete','d',function(){del(p.id)})]);
-    },'Abhi koi breaking nahi.');
-  }catch(e){$('l-news').textContent='Error: '+e.message}
-}
-function edit(id){
-  var p=CUR.find(function(x){return x.id===id});if(!p)return;
-  editId=id;panel('add');
-  $('t').value=p.title||'';$('cat').value=p.cat||'parli';$('pl').value=p.place||'';$('bd').value=p.body||'';
-  $('stt').value=p.status==='draft'?'draft':'published';$('top').checked=!!p.top;$('dt').value=toLocal(p.date);
-  $('addh').textContent='Edit News';$('pub').textContent='Update News';$('cx').hidden=false;
-  window.scrollTo(0,0);
-}
-async function del(id){
-  if(!confirm('Ye hatana hai?'))return;
-  try{
-    var p=CUR.find(function(x){return x.id===id});
-    await mutate(function(l){return l.filter(function(x){return x.id!==id})},'delete '+id);
-    var fp=p&&(p.img||p.video);
-    if(fp){
-      var f=await gh(fp+'?ref=main');
-      if(f)await gh(fp,{method:'DELETE',headers:hdr(1),body:JSON.stringify({message:'delete file',sha:f.sha,branch:'main'})});
-    }
-    load();
-  }catch(e){alert('Error: '+e.message)}
-}
-if(tk())show(true);
-</script>
-</body>
-</html>
+$("rl").onclick=async e=>{const b=e.target.closest("button");if(!b||!confirm("Delete karna hai?"))return;await deleteDoc(doc(db,"videos",b.dataset.id));loadReels()};
+</script></body></html>
