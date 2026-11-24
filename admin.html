@@ -10,14 +10,18 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #d9dee5;border-ra
 textarea{min-height:150px}input[type=checkbox]{width:auto;margin-right:8px}
 button{padding:12px 16px;border:0;border-radius:8px;background:#0b3d91;color:#fff;font:600 16px system-ui;margin-top:14px;width:100%}
 button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0 0;font-size:13px;background:#5b6573}button.d{background:#c62828}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;position:sticky;top:0;background:#f6f7f9;padding:6px 0;z-index:5}
+.tabs button{width:auto;white-space:nowrap;margin:0;padding:9px 13px;font-size:14px;background:#dfe4ec;color:#14181f}.tabs button.on{background:#0b3d91;color:#fff}
 .it{border-top:1px solid #d9dee5;padding:9px 0;font-size:14px;word-break:break-word}.it small{color:#5b6573}
 #msg{position:fixed;left:10px;right:10px;bottom:10px;background:#14181f;color:#fff;padding:12px;border-radius:8px;display:none;text-align:center;z-index:9}
 [hidden]{display:none!important}
 </style></head><body><div class="w">
-<h1>Admin Panel</h1><p style="color:#5b6573;margin:0 0 10px">Sirf aapke liye. Is page ka link kisi ko mat dijiye.</p>
-<div id="lg" class="b"><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
+<h1>Admin Panel</h1>
+<div id="lg" class="b"><p style="margin:0;color:#5b6573">Sirf aapke liye. Is page ka link kisi ko mat dijiye.</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
 <div id="ap" hidden>
-<div class="b"><b>Nayi post</b>
+<div class="tabs"><button data-t="np" class="on">Nayi post</button><button data-t="kh" id="tk">Khabrein</button><button data-t="br" id="tb">Breaking</button><button data-t="rl" id="tr">Reels</button><button data-t="se">Settings</button></div>
+
+<div id="np" class="b"><b id="ft0">Nayi post</b>
 <label>Type</label><select id="ty"><option value="news">Khabar (photo ke saath)</option><option value="breaking">Breaking (ticker)</option><option value="reel">Instagram Reel</option></select>
 <div id="fn"><label>Category</label><select id="ca">
 <option value="parli">Parli News</option><option value="beed">Beed News</option><option value="maharashtra">Maharashtra</option><option value="india">India News</option><option value="politics">Politics</option><option value="crime">Crime News</option><option value="accident">Accident News</option><option value="education">Education</option><option value="schemes">Govt Schemes</option><option value="business">Business</option><option value="sports">Sports</option><option value="entertainment">Entertainment</option><option value="public">Public Issues</option><option value="special">Special Reports</option></select>
@@ -29,9 +33,13 @@ button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0
 <label>Schedule (optional, baad ka time)</label><input id="sc" type="datetime-local">
 <label><input id="tp" type="checkbox">Top Story banao</label></div>
 <button id="pb">Publish karein</button><button id="cx" class="s" hidden style="margin-top:10px">Edit cancel karo</button></div>
-<div class="b"><b>Nayi posts (is panel se)</b><div id="ls"></div></div>
-<div class="b"><b>Purani khabrein (posts.json)</b><p style="font-size:14px;color:#5b6573;margin:6px 0">Ek baar dabao. Purani khabrein is panel me aa jayengi, phir unhe edit ya delete kar sakoge.</p><button id="im" class="s">Purani khabrein import karo</button></div>
-<button id="lo" class="s">Logout</button></div></div><div id="msg"></div>
+
+<div id="kh" class="b" hidden><b>Khabrein</b><input id="q" placeholder="Headline se dhundho..." style="margin-top:8px"><div id="ls"></div><button id="mo" class="s" hidden>Aur dikhao</button></div>
+<div id="br" class="b" hidden><b>Breaking (ticker) ki list</b><div id="lb"></div></div>
+<div id="rl" class="b" hidden><b>Reels / Videos</b><div id="lr"></div></div>
+<div id="se" class="b" hidden><b>Settings</b><p style="font-size:14px;color:#5b6573;margin:6px 0">Purani khabrein (posts.json): ek hi baar dabao. Wo is panel me aa jayengi, phir unhe edit ya delete kar sakoge.</p><button id="im" class="s">Purani khabrein import karo</button></div>
+<button id="lo" class="s">Logout</button>
+</div></div><div id="msg"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -40,12 +48,18 @@ const app=initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDo
 const auth=getAuth(app),db=getFirestore(app),$=i=>document.getElementById(i);
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const m=t=>{const e=$("msg");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",4000)};
+let editId=null,A=[],cache={},lim=10;
+const key=p=>(p.date||"")+"|"+(p.title||p.reel||"");
+function tab(t){document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===t));["np","kh","br","rl","se"].forEach(id=>$(id).hidden=id!==t);window.scrollTo(0,0)}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $("li").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){m("Email ya password galat hai")}};
 $("lo").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{$("lg").hidden=!!u;$("ap").hidden=!u;if(u)load()});
 $("ty").onchange=()=>{const t=$("ty").value;$("fn").hidden=t!=="news";$("fb").hidden=t!=="news";$("fr").hidden=t!=="reel";$("ft").hidden=t==="reel";$("fo").hidden=t==="reel"};
+function endEdit(){editId=null;["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("ft0").textContent="Nayi post";$("cx").hidden=true;load()}
+$("cx").onclick=()=>{endEdit();tab("kh")};
 $("pb").onclick=async()=>{
- const t=$("ty").value,b=$("pb");b.disabled=true;
+ const t=$("ty").value,b=$("pb"),was=editId;b.disabled=true;
  try{
   const p={type:t,status:"publish",date:new Date().toISOString()};
   if(t==="reel"){const r=$("ru").value.match(/instagram\.com\/(?:[^\/?#]+\/)?(?:reel|reels|p)\/([A-Za-z0-9_-]+)/);if(!r)throw new Error("Reel ka sahi link daaliye");p.reel=r[1];p.title="Reel"}
@@ -56,28 +70,24 @@ $("pb").onclick=async()=>{
     p.cat=$("ca").value;p.place=$("pl").value.trim();p.body=$("bo").value.trim();p.top=$("tp").checked;
     const f=$("ph").files[0];
     if(f){b.textContent="Photo upload ho rahi hai...";const fd=new FormData();fd.append("file",f);fd.append("upload_preset","pgr_news");
-     const r=await fetch("https://api.cloudinary.com/v1_1/h87lzxgl/image/upload",{method:"POST",body:fd});const j=await r.json();
-     if(!j.secure_url)throw new Error("Photo upload nahi hui");p.img=j.secure_url}
+     const r=await fetch("https://api.cloudinary.com/v1_1/h87lzxgl/image/upload",{method:"POST",body:fd});
+     const j=await r.json();if(!j.secure_url)throw new Error("Photo upload nahi hui");p.img=j.secure_url}
    }
   }
-  b.textContent="Publish ho raha hai...";
-  if(editId){if(!$("sc").value)delete p.date;await updateDoc(doc(db,"posts",editId),p);m("Update ho gayi!")}else{await addDoc(collection(db,"posts"),p);m("Ho gaya! Website par turant dikhegi.")}
-  endEdit();
-  
+  b.textContent="Save ho raha hai...";
+  if(editId){if(!$("sc").value)delete p.date;await updateDoc(doc(db,"posts",editId),p);m("Update ho gayi!")}
+  else{await addDoc(collection(db,"posts"),p);m("Ho gaya! Website par turant dikhegi.")}
+  endEdit();if(was)tab("kh");
  }catch(e){m("Error: "+e.message)}
  b.disabled=false;b.textContent=editId?"Update karein":"Publish karein";
 };
-let editId=null,cache={};
-const key=p=>(p.date||"")+"|"+(p.title||p.reel||"");
-function endEdit(){editId=null;["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("cx").hidden=true;load()}
-$("cx").onclick=endEdit;
 function startEdit(id){
  const p=cache[id];if(!p)return;editId=id;
  $("ty").value=p.type||"news";$("ty").onchange();$("ty").disabled=true;
  $("ti").value=p.title||"";$("bo").value=p.body||"";$("pl").value=p.place||"";
  if(p.cat)$("ca").value=p.cat;$("st").value=p.status==="draft"?"draft":"publish";$("tp").checked=!!p.top;
- $("pb").textContent="Update karein";$("cx").hidden=false;window.scrollTo({top:0,behavior:"smooth"});
- m("Edit mode: badlav karke Update dabao. Nayi photo na chuno to purani photo rahegi.");
+ $("pb").textContent="Update karein";$("ft0").textContent="Khabar edit ho rahi hai";$("cx").hidden=false;tab("np");
+ m("Badlav karke Update dabao. Nayi photo na chuno to purani rahegi.");
 }
 $("im").onclick=async()=>{
  const b=$("im");b.disabled=true;
@@ -93,14 +103,30 @@ $("im").onclick=async()=>{
 };
 async function load(){
  const s=await getDocs(collection(db,"posts"));
- const a=s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.status!=="deleted").sort((x,y)=>new Date(y.date)-new Date(x.date));cache={};a.forEach(p=>cache[p.id]=p);
- $("ls").innerHTML=a.map(p=>`<div class="it"><b>${esc(p.type==="reel"?"Reel "+p.reel:p.title)}</b><br><small>${esc(p.type)} | ${p.status==="draft"?"Draft":"Publish"}${p.top?" | Top":""} | ${esc((p.date||"").slice(0,10))}</small><br>
- ${p.type!=="reel"?`<button class="s" data-id="${p.id}" data-a="ed">Edit</button><button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
- ${p.type==="news"?`<button class="s" data-id="${p.id}" data-a="tp" data-v="${p.top?1:0}">${p.top?"Top hatao":"Top banao"}</button>`:""}
- <button class="s d" data-id="${p.id}" data-a="del">Delete</button></div>`).join("")||"<p>Abhi koi nayi post nahi.</p>";
+ A=s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.status!=="deleted").sort((x,y)=>new Date(y.date)-new Date(x.date));
+ cache={};A.forEach(p=>cache[p.id]=p);draw();
 }
-$("ls").onclick=async e=>{
- const b=e.target.closest("button");if(!b)return;const r=doc(db,"posts",b.dataset.id);
+const isN=p=>(p.type||"news")==="news",isB=p=>p.type==="breaking";
+function item(p){
+ const ed=isN(p)||isB(p),name=p.type==="reel"?"Reel "+p.reel:(p.title||"(bina headline)");
+ return `<div class="it"><b>${esc(name)}</b><br><small>${esc(p.type||"news")} | ${p.status==="draft"?"Draft":"Publish"}${p.top?" | Top":""} | ${esc((p.date||"").slice(0,10))}</small><br>
+ ${ed?`<button class="s" data-id="${p.id}" data-a="ed">Edit</button><button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
+ ${isN(p)?`<button class="s" data-id="${p.id}" data-a="tp" data-v="${p.top?1:0}">${p.top?"Top hatao":"Top banao"}</button>`:""}
+ <button class="s d" data-id="${p.id}" data-a="del">Delete</button></div>`;
+}
+function draw(){
+ const q=$("q").value.trim().toLowerCase();
+ const nw=A.filter(isN),all=nw.filter(p=>!q||(p.title||"").toLowerCase().includes(q));
+ $("ls").innerHTML=all.slice(0,lim).map(item).join("")||"<p>Koi khabar nahi mili.</p>";$("mo").hidden=all.length<=lim;
+ const br=A.filter(isB),rl=A.filter(p=>!isN(p)&&!isB(p));
+ $("lb").innerHTML=br.map(item).join("")||"<p>Abhi koi breaking nahi.</p>";
+ $("lr").innerHTML=rl.map(item).join("")||"<p>Abhi koi reel nahi.</p>";
+ $("tk").textContent="Khabrein ("+nw.length+")";$("tb").textContent="Breaking ("+br.length+")";$("tr").textContent="Reels ("+rl.length+")";
+}
+$("q").oninput=()=>{lim=10;draw()};
+$("mo").onclick=()=>{lim+=10;draw()};
+async function act(e){
+ const b=e.target.closest("button");if(!b||!b.dataset.a)return;const r=doc(db,"posts",b.dataset.id);
  try{
   if(b.dataset.a==="ed")return startEdit(b.dataset.id);
   if(b.dataset.a==="del"){if(!confirm("Pakka delete karna hai?"))return;const c=cache[b.dataset.id];if(c&&c.from)await updateDoc(r,{status:"deleted"});else await deleteDoc(r)}
@@ -108,5 +134,6 @@ $("ls").onclick=async e=>{
   if(b.dataset.a==="tp")await updateDoc(r,{top:b.dataset.v!=="1"});
   load();
  }catch(x){m("Error: "+x.message)}
-};
+}
+$("ls").onclick=act;$("lb").onclick=act;$("lr").onclick=act;
 </script></body></html>
