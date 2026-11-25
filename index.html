@@ -119,6 +119,19 @@ body.app #mx{position:static;display:block;margin:0 0 10px;background:var(--blue
 .rl.pz .rpl{display:flex}
 .rcn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:26;background:rgba(0,0,0,.55);color:#fff;border-radius:99px;padding:4px 12px;font-size:13px}
 .rem{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#cfd8e8;padding:30px}
+
+.pfb{display:flex;align-items:center;padding:4px 0 10px;position:relative}.pfb b{flex:1;font-size:20px}.pfb button{background:none;border:0;color:var(--ink);font-size:28px;padding:0 8px}
+#pfm{display:none;position:absolute;right:0;top:44px;z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:230px;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+#pfm.open{display:block}#pfm a,#pfm button{display:block;width:100%;text-align:left;padding:13px 16px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:600 16px Mukta,sans-serif;text-decoration:none}
+.pban{height:130px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#1f6feb) center/cover}
+.pav{width:92px;height:92px;border-radius:50%;border:3px solid var(--red);background:#fff center/cover;margin:-46px auto 8px}
+.pfc{text-align:center}.pfc h2{margin:2px 0}.pfc p{margin:6px 0;line-height:1.5}
+.pst{display:flex;gap:8px;margin:12px 0}.pst div{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.pst b{display:block;font-size:20px}.pst span{font-size:12px;color:var(--muted)}
+.pfl{display:block;text-align:center;padding:14px;border-radius:12px;background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);color:#fff;font-weight:700;font-size:17px;text-decoration:none;margin-bottom:12px}
+.ptb{display:flex;border-top:1px solid var(--line)}.ptb button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px;font:600 16px Mukta,sans-serif}.ptb button.on{color:var(--ink);border-color:var(--ink)}
+.pg3{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pt{aspect-ratio:3/4;position:relative;background:linear-gradient(160deg,#1f6feb,#0b2a5b) center/cover;color:#fff;font:700 12px/1.25 Mukta,sans-serif;overflow:hidden;cursor:pointer}
+.pt span{position:absolute;left:0;right:0;bottom:0;padding:18px 6px 6px;background:linear-gradient(transparent,rgba(0,0,0,.75))}.pt i{position:absolute;top:6px;right:8px;font-style:normal}
 </style>
 </head>
 <body>
@@ -222,6 +235,7 @@ body.app #mx{position:static;display:block;margin:0 0 10px;background:var(--blue
 var CAT={parli:['Parli News','\ud83d\udccd'],beed:['Beed News','\ud83d\uddfa\ufe0f'],maharashtra:['Maharashtra','\ud83c\udfdb\ufe0f'],india:['India News','\ud83c\udf10'],politics:['Politics','\ud83d\udc65'],crime:['Crime News','\ud83d\udee1\ufe0f'],accident:['Accident News','\ud83d\udea8'],education:['Education','\ud83c\udf93'],schemes:['Govt Schemes','\ud83d\udccb'],business:['Business','\ud83d\udcbc'],sports:['Sports','\ud83c\udfcf'],entertainment:['Entertainment','\ud83c\udfac'],public:['Public Issues','\ud83d\udce2'],special:['Special Reports','\u2b50']};
 var APP=(function(){try{var q=/[?&]app=(\d)/.exec(location.search);if(q){if(q[1]==='1')sessionStorage.setItem('pgr_app','1');else sessionStorage.removeItem('pgr_app')}return sessionStorage.getItem('pgr_app')==='1'}catch(e){return /[?&]app=1/.test(location.search)}})();
 if(APP)document.body.classList.add('app');
+var PROF={};
 var NEWS=[];
 function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function $(i){return document.getElementById(i)}
@@ -308,7 +322,7 @@ function buildApp(all,news,br,vids){
   var hd=E('div','ah'),lg=document.querySelector('header img');
   if(lg){var im=E('img');im.src=lg.src;im.alt='';hd.appendChild(im)}
   hd.appendChild(E('b',0,'PGR NEWS 24x7'));A.appendChild(hd);
-  var TABS=[['home','\ud83c\udfe0','Home'],['cats','\ud83d\udcc2','Categories'],['vids','\ud83c\udfac','Videos'],['srch','\ud83d\udd0d','Search'],['more','\u2630','Aur']];
+  var TABS=[['home','\ud83c\udfe0','Home'],['cats','\ud83d\udcc2','Categories'],['vids','\ud83c\udfac','Videos'],['srch','\ud83d\udd0d','Search'],['prof','\ud83d\udc64','Profile']];
   TABS.forEach(function(x){var s=E('div','as');s.hidden=true;S[x[0]]=s;A.appendChild(s)});
   function show(k){Object.keys(S).forEach(function(i){S[i].hidden=i!==k;NB[i].classList.toggle('on',i===k)});if(k==='cats')catMenu();RF.hidden=k!=='vids';if(k!=='vids')pauseAll();window.scrollTo(0,0)}
   var H=S.home;
@@ -337,9 +351,31 @@ function buildApp(all,news,br,vids){
   RF.appendChild(CN);A.appendChild(RF);document.addEventListener('visibilitychange',function(){if(document.hidden)pauseAll()});
   var q=E('input');q.type='search';q.placeholder='Khabar dhoondhein...';S.srch.appendChild(q);var sr=E('div','nl');S.srch.appendChild(sr);
   q.oninput=function(){var v=q.value.trim().toLowerCase();sr.textContent='';if(!v)return;list(sr,news.filter(function(p){return((p.title||'')+' '+(p.body||'')+' '+(p.place||'')).toLowerCase().indexOf(v)>-1}).slice(0,30),'Koi khabar nahi mili.')};
-  var M=S.more;M.appendChild(E('h2',0,'Parligroundreport 24x7'));M.appendChild(E('p','mt','Parli Ground Report: Parli Vaijnath, Beed aur Maharashtra ki local khabrein, ground reports aur public issues.'));
-  [['\ud83d\udcde Call karein','tel:+917507200931'],['\ud83d\udcac WhatsApp','https://wa.me/917507200931'],['\u2709\ufe0f Email','mailto:Parligroundreport24x7@gmail.com'],['\u25b6\ufe0f YouTube','https://www.youtube.com/@parligroundreport24x7'],['\ud83d\udcf7 Instagram','https://www.instagram.com/parli_groundreport__24x7'],['\ud83d\udc4d Facebook','https://www.facebook.com/share/1CNRHarVUg/'],['\ud83c\udf10 Poori website (policy waghera)','?app=0']].forEach(function(x){var a=E('a','ai',x[0]);a.href=x[1];if(x[1].indexOf('http')===0)a.target='_blank';M.appendChild(a)});
-  var tb=E('button','ai','\ud83c\udf13 Dark / Light mode');tb.type='button';tb.onclick=function(){var b=$('thm');if(b)b.click()};M.appendChild(tb);
+  var P=PROF||{},NM=P.name||'PGR NEWS 24x7',IG=String(P.ig||'parli_groundreport__24x7').replace(/^@/,''),FOL=(P.followers!==undefined&&P.followers!=='')?P.followers:32,FB=P.fb||'https://www.facebook.com/share/1CNRHarVUg/';
+  function safe(u){return /^https:\/\/res\.cloudinary\.com\/h87lzxgl\//.test(u||'')}
+  function cl(u,tr){return u.replace('/upload/','/upload/'+tr+'/')}
+  function bgi(el,u){el.style.backgroundImage='url("'+encodeURI(u).replace(/"/g,'%22')+'")'}
+  var M=S.prof;M.style.position='relative';
+  var bar=E('div','pfb');bar.appendChild(E('b',0,IG));var dots=E('button',0,'\u22ee');dots.type='button';bar.appendChild(dots);
+  var mn=E('div');mn.id='pfm';
+  function mi(x,h,fn){var a=E(h?'a':'button',0,x);if(h){a.href=h;if(h.indexOf('http')===0)a.target='_blank'}else{a.type='button';a.onclick=function(){mn.classList.remove('open');fn()}}mn.appendChild(a)}
+  mi('\ud83d\udce4 Profile share karein',0,function(){var u=location.origin+location.pathname;if(navigator.share){navigator.share({title:NM,url:u}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(u)}});
+  mi('\ud83d\udcde Call karein','tel:+917507200931');mi('\ud83d\udcac WhatsApp','https://wa.me/917507200931');mi('\u2709\ufe0f Email','mailto:Parligroundreport24x7@gmail.com');
+  mi('\u25b6\ufe0f YouTube','https://www.youtube.com/@parligroundreport24x7');mi('\ud83d\udc4d Facebook',FB);mi('\ud83c\udf10 Poori website (policy waghera)','?app=0');
+  mi('\ud83c\udf13 Dark / Light mode',0,function(){var b=$('thm');if(b)b.click()});
+  bar.appendChild(mn);dots.onclick=function(e){e.stopPropagation();mn.classList.toggle('open')};document.addEventListener('click',function(){mn.classList.remove('open')});
+  M.appendChild(bar);
+  var ban=E('div','pban');if(safe(P.cover))bgi(ban,cl(P.cover,'w_900,h_260,c_fill,f_auto,q_auto'));M.appendChild(ban);
+  var av=E('div','pav');if(safe(P.dp))bgi(av,cl(P.dp,'w_300,h_300,c_fill,g_face,f_auto,q_auto'));else if(lg)av.style.backgroundImage='url("'+lg.src+'")';M.appendChild(av);
+  var pc=E('div','pfc');pc.appendChild(E('h2',0,NM));pc.appendChild(E('div','mt','@'+IG));
+  var bp=E('p');(P.bio||'\ud83d\udcf0 Parli Ground Report\n\ud83d\udccd Parli Vaijnath, Dist. Beed\n\ud83c\udfa5 Local News \u2022 Ground Reports \u2022 Updates\n\u26a1 Fact-Based Reporting').split('\n').forEach(function(l,k){if(k)bp.appendChild(E('br'));bp.appendChild(document.createTextNode(l))});pc.appendChild(bp);M.appendChild(pc);
+  var st=E('div','pst');[[news.length+vs.length,'Posts'],[FOL,'Followers'],[vs.length,'Videos']].forEach(function(x){var d=E('div');d.appendChild(E('b',0,String(x[0])));d.appendChild(E('span',0,x[1]));st.appendChild(d)});M.appendChild(st);
+  var fl=E('a','pfl','\ud83d\udcf7 Instagram par Follow karein');fl.href='https://www.instagram.com/'+encodeURIComponent(IG)+'/';fl.target='_blank';M.appendChild(fl);
+  function openReel(i){show('vids');setTimeout(function(){RF.scrollTop=i*RF.clientHeight},60)}
+  var tb=E('div','ptb'),b1=E('button','on','\u25a6 Khabrein'),b2=E('button',0,'\u25b6 Videos'),gr=E('div','pg3');b1.type='button';b2.type='button';
+  function fill(k){gr.textContent='';(k==='v'?vs:news).forEach(function(p,i){var tl=E('div','pt'),im=k==='v'?p.video.replace('/upload/','/upload/so_0,w_360/').replace(/\.\w+$/,'.jpg'):(okimg(p)?p.img:'');if(im)bgi(tl,im);tl.appendChild(E('span',0,p.title||''));if(k==='v')tl.appendChild(E('i',0,'\u25b6'));tl.onclick=function(){if(k==='v')openReel(i);else openM(p)};gr.appendChild(tl)});if(!gr.children.length)gr.appendChild(E('p','empty','Abhi kuch nahi hai.'))}
+  b1.onclick=function(){b1.className='on';b2.className='';fill('n')};b2.onclick=function(){b2.className='on';b1.className='';fill('v')};
+  tb.appendChild(b1);tb.appendChild(b2);M.appendChild(tb);M.appendChild(gr);fill('n');
   var nv=E('div','ab');TABS.forEach(function(x){var b=E('button');b.type='button';b.appendChild(E('span',0,x[1]));b.appendChild(document.createTextNode(x[2]));b.onclick=function(){show(x[0])};NB[x[0]]=b;nv.appendChild(b)});A.appendChild(nv);
   document.body.appendChild(A);$('mx').textContent='\u2190 Wapas';document.body.classList.add('ready');show('home');
 }
@@ -347,8 +383,8 @@ var td=$('today');if(td)td.textContent=new Date().toLocaleDateString('en-IN',{we
 cats();
 $('mx').onclick=closeM;
 $('md').onclick=function(e){if(e.target===this)closeM()};
-function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return import(B+'firebase-app.js').then(function(a){return import(B+'firebase-firestore.js').then(function(f){var db=f.getFirestore(a.initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"}));return f.getDocs(f.collection(db,'posts')).then(function(q){var R={d:[],f:{}};q.docs.forEach(function(d){var o=d.data();o.id=d.id;if(o.from)R.f[o.from]=1;if(o.status!=='deleted')R.d.push(o)});return R})})}).catch(function(){return{d:[],f:{}}})}
-Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){var F=r[1].f;render(r[0].filter(function(p){return !F[(p.date||'')+'|'+(p.title||p.reel||'')]}).concat(r[1].d));openFromUrl()});
+function fsLoad(){var B='https://www.gstatic.com/firebasejs/10.12.0/';return import(B+'firebase-app.js').then(function(a){return import(B+'firebase-firestore.js').then(function(f){var db=f.getFirestore(a.initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"}));return f.getDocs(f.collection(db,'posts')).then(function(q){var R={d:[],f:{}};q.docs.forEach(function(d){var o=d.data();o.id=d.id;if(o.from)R.f[o.from]=1;if(o.status!=='deleted')R.d.push(o)});return R}).then(function(R){return f.getDoc(f.doc(db,'settings','profile')).then(function(s){R.pr=s.exists()?s.data():{};return R},function(){R.pr={};return R})})})}).catch(function(){return{d:[],f:{},pr:{}}})}
+Promise.all([fetch('posts.json?v='+Date.now()).then(function(x){return x.ok?x.json():[]}).catch(function(){return[]}),fsLoad()]).then(function(r){var F=r[1].f;PROF=r[1].pr||{};render(r[0].filter(function(p){return !F[(p.date||'')+'|'+(p.title||p.reel||'')]}).concat(r[1].d));openFromUrl()});
 })();
 </script>
 </div>

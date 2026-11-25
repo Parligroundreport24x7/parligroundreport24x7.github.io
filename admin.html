@@ -19,7 +19,7 @@ button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0
 <h1>Admin Panel</h1>
 <div id="lg" class="b"><p style="margin:0;color:#5b6573">Sirf aapke liye. Is page ka link kisi ko mat dijiye.</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
 <div id="ap" hidden>
-<div class="tabs"><button data-t="np" class="on">Nayi post</button><button data-t="kh" id="tk">Khabrein</button><button data-t="br" id="tb">Breaking</button><button data-t="rl" id="tr">Videos</button><button data-t="se">Settings</button></div>
+<div class="tabs"><button data-t="np" class="on">Nayi post</button><button data-t="kh" id="tk">Khabrein</button><button data-t="br" id="tb">Breaking</button><button data-t="rl" id="tr">Videos</button><button data-t="pf">Profile</button><button data-t="se">Settings</button></div>
 
 <div id="np" class="b"><b id="ft0">Nayi post</b>
 <label>Type</label><select id="ty"><option value="news">Khabar (photo ke saath)</option><option value="breaking">Breaking (ticker)</option><option value="vfile">Video / Reel (apni upload)</option></select>
@@ -37,24 +37,30 @@ button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0
 <div id="kh" class="b" hidden><b>Khabrein</b><input id="q" placeholder="Headline se dhundho..." style="margin-top:8px"><div id="ls"></div><button id="mo" class="s" hidden>Aur dikhao</button></div>
 <div id="br" class="b" hidden><b>Breaking (ticker) ki list</b><div id="lb"></div></div>
 <div id="rl" class="b" hidden><b>Reels / Videos</b><div id="lr"></div></div>
+<div id="pf" class="b" hidden><b>App Profile</b>
+<label>Profile photo (DP)</label><img id="dpv" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:none;margin-bottom:6px"><input id="dp" type="file" accept="image/*">
+<label>Cover photo (peeche ki patti)</label><img id="cvv" alt="" style="width:100%;max-height:90px;object-fit:cover;display:none;margin-bottom:6px"><input id="cv" type="file" accept="image/*">
+<label>Naam</label><input id="pn"><label>Bio (har line alag)</label><textarea id="pbio" style="min-height:110px"></textarea>
+<label>Instagram username</label><input id="pi" placeholder="parli_groundreport__24x7"><label>Followers ki ginti</label><input id="pfo" type="number" min="0"><label>Facebook page ka link</label><input id="pfbk">
+<button id="ps">Profile save karein</button></div>
 <div id="se" class="b" hidden><b>Settings</b><p style="font-size:14px;color:#5b6573;margin:6px 0">Purani khabrein (posts.json): ek hi baar dabao. Wo is panel me aa jayengi, phir unhe edit ya delete kar sakoge.</p><button id="im" class="s">Purani khabrein import karo</button></div>
 <button id="lo" class="s">Logout</button>
 </div></div><div id="msg"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,getDocs,deleteDoc,updateDoc,doc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,getDocs,deleteDoc,updateDoc,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyCNavyIi5Zmw6C_w1zcJtrv9zh2xfkxV8o",authDomain:"parligroundreport-d8b0f.firebaseapp.com",projectId:"parligroundreport-d8b0f",storageBucket:"parligroundreport-d8b0f.firebasestorage.app",messagingSenderId:"68523898769",appId:"1:68523898769:web:74c5192f0d0769e2bf4c30"});
 const auth=getAuth(app),db=getFirestore(app),$=i=>document.getElementById(i);
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const m=t=>{const e=$("msg");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",4000)};
 let editId=null,A=[],cache={},lim=10;
 const key=p=>(p.date||"")+"|"+(p.title||p.reel||"");
-function tab(t){document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===t));["np","kh","br","rl","se"].forEach(id=>$(id).hidden=id!==t);window.scrollTo(0,0)}
+function tab(t){document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x.dataset.t===t));["np","kh","br","rl","pf","se"].forEach(id=>$(id).hidden=id!==t);window.scrollTo(0,0)}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $("li").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){m("Email ya password galat hai")}};
 $("lo").onclick=()=>signOut(auth);
-onAuthStateChanged(auth,u=>{$("lg").hidden=!!u;$("ap").hidden=!u;if(u)load()});
+onAuthStateChanged(auth,u=>{$("lg").hidden=!!u;$("ap").hidden=!u;if(u){load();loadProf()}});
 $("ty").onchange=()=>{const t=$("ty").value;$("fn").hidden=t!=="news";$("fb").hidden=t!=="news";$("fv").hidden=t!=="vfile";$("ft").hidden=false;$("fo").hidden=false};
 function upVideo(f){return new Promise((ok,no)=>{const x=new XMLHttpRequest(),fd=new FormData();fd.append("file",f);fd.append("upload_preset","pgr_news");x.open("POST","https://api.cloudinary.com/v1_1/h87lzxgl/video/upload");x.upload.onprogress=e=>{if(e.lengthComputable)$("up").textContent="Video upload ho rahi hai: "+Math.round(e.loaded/e.total*100)+"%"};x.onload=()=>{try{const j=JSON.parse(x.responseText);j.secure_url?ok(j.secure_url):no(new Error((j.error&&j.error.message)||"Video upload nahi hui"))}catch(e){no(new Error("Video upload nahi hui"))}};x.onerror=()=>no(new Error("Internet ya network ki dikkat"));x.send(fd)})}
 function endEdit(){editId=null;["ti","bo","pl","vd","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("ft0").textContent="Nayi post";$("cx").hidden=true;load()}
@@ -102,6 +108,12 @@ $("im").onclick=async()=>{
  }catch(e){m("Error: "+e.message)}
  b.disabled=false;
 };
+const DEFBIO="\ud83d\udcf0 Parli Ground Report\n\ud83d\udccd Parli Vaijnath, Dist. Beed\n\ud83c\udfa5 Local News \u2022 Ground Reports \u2022 Updates\n\u26a1 Fact-Based Reporting";
+function upImg(f){const fd=new FormData();fd.append("file",f);fd.append("upload_preset","pgr_news");return fetch("https://api.cloudinary.com/v1_1/h87lzxgl/image/upload",{method:"POST",body:fd}).then(r=>r.json()).then(j=>{if(!j.secure_url)throw new Error("Photo upload nahi hui (photo 10 MB se chhoti rakhiye)");return j.secure_url})}
+async function loadProf(){try{const x=await getDoc(doc(db,"settings","profile")),d=x.exists()?x.data():{};$("pn").value=d.name||"PGR NEWS 24x7";$("pbio").value=d.bio||DEFBIO;$("pi").value=d.ig||"parli_groundreport__24x7";$("pfo").value=d.followers!==undefined?d.followers:32;$("pfbk").value=d.fb||"https://www.facebook.com/share/1CNRHarVUg/";if(d.dp){$("dpv").src=d.dp;$("dpv").style.display="block"}if(d.cover){$("cvv").src=d.cover;$("cvv").style.display="block"}}catch(e){}}
+$("ps").onclick=async()=>{const b=$("ps");b.disabled=true;try{const o={name:$("pn").value.trim(),bio:$("pbio").value.trim(),ig:$("pi").value.trim().replace(/^@/,""),followers:Number($("pfo").value)||0,fb:$("pfbk").value.trim()},d=$("dp").files[0],c=$("cv").files[0];
+ if(d){b.textContent="DP upload ho rahi hai...";o.dp=await upImg(d)}if(c){b.textContent="Cover upload ho raha hai...";o.cover=await upImg(c)}
+ await setDoc(doc(db,"settings","profile"),o,{merge:true});m("Profile save ho gaya!");$("dp").value="";$("cv").value="";loadProf()}catch(e){m("Error: "+e.message)}b.disabled=false;b.textContent="Profile save karein"};
 async function load(){
  const s=await getDocs(collection(db,"posts"));
  A=s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.status!=="deleted").sort((x,y)=>new Date(y.date)-new Date(x.date));
