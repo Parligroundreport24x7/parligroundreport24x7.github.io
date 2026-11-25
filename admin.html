@@ -19,16 +19,16 @@ button:disabled{opacity:.5}button.s{width:auto;padding:7px 12px;margin:6px 6px 0
 <h1>Admin Panel</h1>
 <div id="lg" class="b"><p style="margin:0;color:#5b6573">Sirf aapke liye. Is page ka link kisi ko mat dijiye.</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button id="li">Login</button></div>
 <div id="ap" hidden>
-<div class="tabs"><button data-t="np" class="on">Nayi post</button><button data-t="kh" id="tk">Khabrein</button><button data-t="br" id="tb">Breaking</button><button data-t="rl" id="tr">Reels</button><button data-t="se">Settings</button></div>
+<div class="tabs"><button data-t="np" class="on">Nayi post</button><button data-t="kh" id="tk">Khabrein</button><button data-t="br" id="tb">Breaking</button><button data-t="rl" id="tr">Videos</button><button data-t="se">Settings</button></div>
 
 <div id="np" class="b"><b id="ft0">Nayi post</b>
-<label>Type</label><select id="ty"><option value="news">Khabar (photo ke saath)</option><option value="breaking">Breaking (ticker)</option><option value="reel">Instagram Reel</option></select>
+<label>Type</label><select id="ty"><option value="news">Khabar (photo ke saath)</option><option value="breaking">Breaking (ticker)</option><option value="vfile">Video / Reel (apni upload)</option></select>
 <div id="fn"><label>Category</label><select id="ca">
 <option value="parli">Parli News</option><option value="beed">Beed News</option><option value="maharashtra">Maharashtra</option><option value="india">India News</option><option value="politics">Politics</option><option value="crime">Crime News</option><option value="accident">Accident News</option><option value="education">Education</option><option value="schemes">Govt Schemes</option><option value="business">Business</option><option value="sports">Sports</option><option value="entertainment">Entertainment</option><option value="public">Public Issues</option><option value="special">Special Reports</option></select>
 <label>Jagah (optional)</label><input id="pl" placeholder="Parli Vaijnath"></div>
 <div id="ft"><label>Headline</label><input id="ti" maxlength="200"></div>
 <div id="fb"><label>Khabar</label><textarea id="bo"></textarea><label>Photo (optional)</label><input id="ph" type="file" accept="image/*"></div>
-<div id="fr" hidden><label>Instagram reel ka link</label><input id="ru" placeholder="https://www.instagram.com/reel/..."></div>
+<div id="fv" hidden><label>Video (max 100 MB, chhoti reel best)</label><input id="vd" type="file" accept="video/*"><div id="up" style="font-size:14px;margin-top:6px"></div></div>
 <div id="fo"><label>Status</label><select id="st"><option value="publish">Publish</option><option value="draft">Draft (abhi mat dikhao)</option></select>
 <label>Schedule (optional, baad ka time)</label><input id="sc" type="datetime-local">
 <label><input id="tp" type="checkbox">Top Story banao</label></div>
@@ -55,17 +55,18 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>tab(b.dataset
 $("li").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){m("Email ya password galat hai")}};
 $("lo").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{$("lg").hidden=!!u;$("ap").hidden=!u;if(u)load()});
-$("ty").onchange=()=>{const t=$("ty").value;$("fn").hidden=t!=="news";$("fb").hidden=t!=="news";$("fr").hidden=t!=="reel";$("ft").hidden=t==="reel";$("fo").hidden=t==="reel"};
-function endEdit(){editId=null;["ti","bo","pl","ru","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("ft0").textContent="Nayi post";$("cx").hidden=true;load()}
+$("ty").onchange=()=>{const t=$("ty").value;$("fn").hidden=t!=="news";$("fb").hidden=t!=="news";$("fv").hidden=t!=="vfile";$("ft").hidden=false;$("fo").hidden=false};
+function upVideo(f){return new Promise((ok,no)=>{const x=new XMLHttpRequest(),fd=new FormData();fd.append("file",f);fd.append("upload_preset","pgr_news");x.open("POST","https://api.cloudinary.com/v1_1/h87lzxgl/video/upload");x.upload.onprogress=e=>{if(e.lengthComputable)$("up").textContent="Video upload ho rahi hai: "+Math.round(e.loaded/e.total*100)+"%"};x.onload=()=>{try{const j=JSON.parse(x.responseText);j.secure_url?ok(j.secure_url):no(new Error((j.error&&j.error.message)||"Video upload nahi hui"))}catch(e){no(new Error("Video upload nahi hui"))}};x.onerror=()=>no(new Error("Internet ya network ki dikkat"));x.send(fd)})}
+function endEdit(){editId=null;["ti","bo","pl","vd","ph","sc"].forEach(i=>$(i).value="");$("tp").checked=false;$("ty").disabled=false;$("pb").textContent="Publish karein";$("ft0").textContent="Nayi post";$("cx").hidden=true;load()}
 $("cx").onclick=()=>{endEdit();tab("kh")};
 $("pb").onclick=async()=>{
  const t=$("ty").value,b=$("pb"),was=editId;b.disabled=true;
  try{
   const p={type:t,status:"publish",date:new Date().toISOString()};
-  if(t==="reel"){const r=$("ru").value.match(/instagram\.com\/(?:[^\/?#]+\/)?(?:reel|reels|p)\/([A-Za-z0-9_-]+)/);if(!r)throw new Error("Reel ka sahi link daaliye");p.reel=r[1];p.title="Reel"}
-  else{
+  {
    const ti=$("ti").value.trim();if(!ti)throw new Error("Headline likhiye");p.title=ti;
    p.status=$("st").value;if($("sc").value)p.date=new Date($("sc").value).toISOString();
+   if(t==="vfile"){const f=$("vd").files[0];if(!f&&!editId)throw new Error("Video chuniye");if(f){if(f.size>100*1024*1024)throw new Error("Video 100 MB se badi hai, chhoti karke daaliye");b.textContent="Upload ho raha hai...";p.video=await upVideo(f)}}
    if(t==="news"){
     p.cat=$("ca").value;p.place=$("pl").value.trim();p.body=$("bo").value.trim();p.top=$("tp").checked;
     const f=$("ph").files[0];
@@ -108,7 +109,7 @@ async function load(){
 }
 const isN=p=>(p.type||"news")==="news",isB=p=>p.type==="breaking";
 function item(p){
- const ed=isN(p)||isB(p),name=p.type==="reel"?"Reel "+p.reel:(p.title||"(bina headline)");
+ const ed=isN(p)||isB(p)||p.type==="vfile",name=p.type==="reel"?"Reel "+p.reel:(p.title||"(bina headline)");
  return `<div class="it"><b>${esc(name)}</b><br><small>${esc(p.type||"news")} | ${p.status==="draft"?"Draft":"Publish"}${p.top?" | Top":""} | ${esc((p.date||"").slice(0,10))}</small><br>
  ${ed?`<button class="s" data-id="${p.id}" data-a="ed">Edit</button><button class="s" data-id="${p.id}" data-a="st" data-v="${p.status}">${p.status==="draft"?"Publish karo":"Draft karo"}</button>`:""}
  ${isN(p)?`<button class="s" data-id="${p.id}" data-a="tp" data-v="${p.top?1:0}">${p.top?"Top hatao":"Top banao"}</button>`:""}
@@ -121,7 +122,7 @@ function draw(){
  const br=A.filter(isB),rl=A.filter(p=>!isN(p)&&!isB(p));
  $("lb").innerHTML=br.map(item).join("")||"<p>Abhi koi breaking nahi.</p>";
  $("lr").innerHTML=rl.map(item).join("")||"<p>Abhi koi reel nahi.</p>";
- $("tk").textContent="Khabrein ("+nw.length+")";$("tb").textContent="Breaking ("+br.length+")";$("tr").textContent="Reels ("+rl.length+")";
+ $("tk").textContent="Khabrein ("+nw.length+")";$("tb").textContent="Breaking ("+br.length+")";$("tr").textContent="Videos ("+rl.length+")";
 }
 $("q").oninput=()=>{lim=10;draw()};
 $("mo").onclick=()=>{lim+=10;draw()};

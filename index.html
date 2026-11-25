@@ -104,6 +104,21 @@ body.app.ready::before{display:none}
 .as h2{margin:16px 0 4px;font-size:26px}
 body.app .md{padding:0;background:var(--bg)}body.app .mb{max-width:none;min-height:100%;border-radius:0;padding:12px 14px 40px}
 body.app #mx{position:static;display:block;margin:0 0 10px;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:8px 16px;font:600 16px Mukta,sans-serif;width:auto}
+
+#rf{position:fixed;left:0;right:0;top:0;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:25;background:#000;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}
+#rf::-webkit-scrollbar{display:none}#rf[hidden]{display:none}
+.rl{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;background:#000;overflow:hidden}
+.rl video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+.rsh{position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none}
+.rtt{position:absolute;left:14px;right:84px;bottom:22px;color:#fff;pointer-events:none}
+.rtt h3{margin:0 0 4px;font:700 22px/1.2 Mukta,sans-serif}.rtt p{margin:0;font-size:14px;opacity:.85}
+.rsd{position:absolute;right:10px;bottom:30px;display:flex;flex-direction:column;gap:14px}
+.rsd button{width:50px;height:50px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:22px;padding:0}
+.rpg{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--red)}
+.rpl{display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-size:70px;pointer-events:none}
+.rl.pz .rpl{display:flex}
+.rcn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:26;background:rgba(0,0,0,.55);color:#fff;border-radius:99px;padding:4px 12px;font-size:13px}
+.rem{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#cfd8e8;padding:30px}
 </style>
 </head>
 <body>
@@ -270,7 +285,7 @@ function render(all){
   }
   var rest=NEWS.filter(function(p){return p!==top}).slice(0,20);
   if(rest.length)list($('nl'),rest,'');
-  var vids=all.filter(function(p){return p.type==='reel'&&/^[\w-]+$/.test(p.reel||'')||p.type==='video'&&/^[\w-]{11}$/.test(p.yt||'')||p.type==='vfile'&&/^videos\/[\w.-]+$/.test(p.video||'')});
+  var vids=all.filter(function(p){return p.type==='video'&&/^[\w-]{11}$/.test(p.yt||'')||p.type==='vfile'&&(/^videos\/[\w.-]+$/.test(p.video||'')||/^https:\/\/res\.cloudinary\.com\/h87lzxgl\//.test(p.video||''))});
   if(vids.length){
     var v=$('vids'),vr=E('div','vr');
     vids.forEach(function(p){
@@ -295,7 +310,7 @@ function buildApp(all,news,br,vids){
   hd.appendChild(E('b',0,'PGR NEWS 24x7'));A.appendChild(hd);
   var TABS=[['home','\ud83c\udfe0','Home'],['cats','\ud83d\udcc2','Categories'],['vids','\ud83c\udfac','Videos'],['srch','\ud83d\udd0d','Search'],['more','\u2630','Aur']];
   TABS.forEach(function(x){var s=E('div','as');s.hidden=true;S[x[0]]=s;A.appendChild(s)});
-  function show(k){Object.keys(S).forEach(function(i){S[i].hidden=i!==k;NB[i].classList.toggle('on',i===k)});if(k==='cats')catMenu();window.scrollTo(0,0)}
+  function show(k){Object.keys(S).forEach(function(i){S[i].hidden=i!==k;NB[i].classList.toggle('on',i===k)});if(k==='cats')catMenu();RF.hidden=k!=='vids';if(k!=='vids')pauseAll();window.scrollTo(0,0)}
   var H=S.home;
   if(br.length)H.appendChild(E('div','atk','\ud83d\udd34 '+br.slice(0,5).map(function(x){return x.title}).join('  \u2022  ')));
   var top=news.filter(function(p){return p.top})[0]||news[0];
@@ -303,7 +318,23 @@ function buildApp(all,news,br,vids){
   H.appendChild(E('h2',0,'Latest News'));var nl=E('div','nl');H.appendChild(nl);list(nl,news.filter(function(p){return p!==top}).slice(0,20),'Abhi koi khabar nahi hai.');
   function catMenu(){var c=S.cats;c.textContent='';c.appendChild(E('h2',0,'Categories'));var g=E('div','ag');Object.keys(CAT).forEach(function(k){var b=E('button','cc');b.type='button';b.appendChild(E('span','ic',CAT[k][1]));b.appendChild(E('b',0,' '+CAT[k][0]));b.onclick=function(){catView(k)};g.appendChild(b)});c.appendChild(g)}
   function catView(k){var c=S.cats;c.textContent='';var bk=E('button','ai','\u2190 Categories');bk.type='button';bk.onclick=catMenu;c.appendChild(bk);c.appendChild(E('h2',0,CAT[k][0]));var l=E('div','nl');c.appendChild(l);list(l,news.filter(function(p){return p.cat===k}),'Is category mein abhi koi khabar nahi hai.');window.scrollTo(0,0)}
-  S.vids.appendChild(E('h2',0,'Videos / Reels'));if(vids.length)vids.forEach(function(p){S.vids.appendChild(mk(p))});else S.vids.appendChild(E('p','empty','Abhi koi video nahi hai.'));
+  var RF=E('div');RF.id='rf';RF.hidden=true;var vs=vids.filter(function(p){return p.type==='vfile'}),MU=true,CN=E('div','rcn','');
+  function pauseAll(){RF.querySelectorAll('video').forEach(function(v){v.pause()})}
+  function setMu(){RF.querySelectorAll('.rsd .mu').forEach(function(b){b.textContent=MU?'\ud83d\udd07':'\ud83d\udd0a'});RF.querySelectorAll('video').forEach(function(v){v.muted=MU})}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){var r=e.target,v=r.querySelector('video');if(e.isIntersecting){CN.textContent=(vs.indexOf(r._p)+1)+' / '+vs.length;r.classList.remove('pz');v.muted=MU;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){MU=true;setMu();v.play().catch(function(){})})}else{v.pause()}})},{root:RF,threshold:.65});
+  if(!vs.length){RF.appendChild(E('div','rem','Abhi koi video nahi hai.'))}
+  vs.forEach(function(p){
+    var r=E('div','rl'),v=E('video');r._p=p;v.src=p.video;v.loop=true;v.muted=true;v.preload='metadata';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
+    v.poster=p.video.replace('/upload/','/upload/so_0,w_540/').replace(/\.\w+$/,'.jpg');
+    var pg=E('div','rpg');v.ontimeupdate=function(){pg.style.width=(v.currentTime/(v.duration||1)*100)+'%'};
+    var tt=E('div','rtt');tt.appendChild(E('h3',0,p.title||''));tt.appendChild(E('p',0,'PGR NEWS 24x7'));
+    var sd=E('div','rsd'),mu=E('button','mu','\ud83d\udd07'),sh=E('button',0,'\u2197');mu.type='button';sh.type='button';
+    mu.onclick=function(){MU=!MU;setMu()};
+    sh.onclick=function(){var u=location.origin+location.pathname,x=(p.title||'PGR NEWS 24x7');if(navigator.share){navigator.share({title:x,text:x,url:u}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(x+' - '+u).then(function(){sh.textContent='\u2713'})}};
+    sd.appendChild(mu);sd.appendChild(sh);
+    r.addEventListener('click',function(e){if(e.target.closest('button'))return;if(v.paused){v.play().catch(function(){});r.classList.remove('pz')}else{v.pause();r.classList.add('pz')}});
+    [v,E('div','rsh'),E('div','rpl','\u25b6'),tt,sd,pg].forEach(function(x){r.appendChild(x)});RF.appendChild(r);io.observe(r)});
+  RF.appendChild(CN);A.appendChild(RF);document.addEventListener('visibilitychange',function(){if(document.hidden)pauseAll()});
   var q=E('input');q.type='search';q.placeholder='Khabar dhoondhein...';S.srch.appendChild(q);var sr=E('div','nl');S.srch.appendChild(sr);
   q.oninput=function(){var v=q.value.trim().toLowerCase();sr.textContent='';if(!v)return;list(sr,news.filter(function(p){return((p.title||'')+' '+(p.body||'')+' '+(p.place||'')).toLowerCase().indexOf(v)>-1}).slice(0,30),'Koi khabar nahi mili.')};
   var M=S.more;M.appendChild(E('h2',0,'Parligroundreport 24x7'));M.appendChild(E('p','mt','Parli Ground Report: Parli Vaijnath, Beed aur Maharashtra ki local khabrein, ground reports aur public issues.'));
